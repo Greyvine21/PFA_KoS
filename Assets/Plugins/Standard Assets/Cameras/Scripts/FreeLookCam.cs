@@ -73,8 +73,8 @@ namespace UnityStandardAssets.Cameras
 			return;
 
             // Read the user input
-            var x = CrossPlatformInputManager.GetAxis("X360_Rstick_X");
-            var y = CrossPlatformInputManager.GetAxis("X360_Rstick_Y");
+            var x = CrossPlatformInputManager.GetAxis("X360_Rstick_X") + CrossPlatformInputManager.GetAxis("Mouse X");
+            var y = CrossPlatformInputManager.GetAxis("X360_Rstick_Y") + CrossPlatformInputManager.GetAxis("Mouse Y");
 
             // Adjust the look angle by an amount proportional to the turn speed and horizontal input.
             m_LookAngle += x*m_TurnSpeed;
