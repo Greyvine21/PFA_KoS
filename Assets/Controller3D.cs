@@ -129,6 +129,7 @@ public class Controller3D : MonoBehaviour {
         if(m_fixedJointTemp == null){
             m_fixedJointTemp = gameObject.AddComponent<FixedJoint>();
             m_fixedJointTemp.connectedBody = transform.parent.GetComponent<Rigidbody>();
+            //m_rbPlayer.isKinematic = true;
             //print("Add Joint");
         }
     }
@@ -136,6 +137,7 @@ public class Controller3D : MonoBehaviour {
     public void UnfixPlayer(){
         if(m_fixedJointTemp != null){
             Destroy(m_fixedJointTemp);
+            //m_rbPlayer.isKinematic = false;
             //print("remove Joint");
         }
     }

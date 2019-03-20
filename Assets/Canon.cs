@@ -54,7 +54,7 @@ public class Canon : MonoBehaviour {
 
 	public void CanonShoot(){
 		if(isLoaded){
-			print(gameObject.name + " shoot");
+			//print(gameObject.name + " shoot");
 			GameObject bullet = Instantiate(m_canonBall, m_shootPoint.position, m_shootPoint.rotation);
 			bullet.name = "CanonBall";
 			bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_bulletSpeed, ForceMode.Impulse);
