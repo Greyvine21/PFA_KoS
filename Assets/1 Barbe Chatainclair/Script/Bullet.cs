@@ -6,6 +6,8 @@ public class Bullet : MonoBehaviour {
 
 	public bool showHit;
 	public float m_livingTime = 10;
+	public int m_damage = 5;
+	
 	void Start () 
 	{
 		Destroy(gameObject, m_livingTime);

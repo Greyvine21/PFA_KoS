@@ -183,7 +183,7 @@ public class Controller3D : MonoBehaviour {
         }
 
         //SHOOT
-        if(Input.GetButton("X360_LBumper") && canShoot){
+        if(Input.GetAxisRaw("X360_Triggers") < 0 && canShoot){
             StartCoroutine("Shoot");
         }
 	}

@@ -85,14 +85,14 @@ public class UI : MonoBehaviour {
 					StartCoroutine(HighlightText(m_textHaut, m_repliqueHautTemp, false));
 				} 
 				if(Input.GetButtonDown("X360_B") && !textCoroutine){	//droite
-					StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, false));
 					//m_minions.BroadcastMessage("MoveTorightCannon");
-					m_ship.BroadcastMessage("CanonReload", false, SendMessageOptions.DontRequireReceiver);
+					//m_ship.BroadcastMessage("CanonReload", false, SendMessageOptions.DontRequireReceiver);
+					StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, m_ship.ReloadCanon(false)));
 				}
 				if(Input.GetButtonDown("X360_X") && !textCoroutine){	//gauche
-					StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, false));
 					//m_minions.BroadcastMessage("MoveToleftCannon");
-					m_ship.BroadcastMessage("CanonReload", true, SendMessageOptions.DontRequireReceiver);
+					//m_ship.BroadcastMessage("CanonReload", true, SendMessageOptions.DontRequireReceiver);
+					StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, m_ship.ReloadCanon(true)));
 				}
 			break;
 			case Contextes.Navigation:
@@ -182,6 +182,7 @@ public class UI : MonoBehaviour {
 
 		yield return new WaitForSeconds(0.5f);
 		
+		print("order ok");
 		txt.color = txtColorTemp;
 		txt.transform.localScale = txtSizeTemp;
 		

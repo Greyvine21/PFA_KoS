@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 public class Canon : MonoBehaviour {
 
-    [SerializeField] private bool Left;
+    [SerializeField] public bool m_Left;
 
     [Header("Shooting")]
     [SerializeField] private Transform m_shootPoint;
     [SerializeField] private float m_bulletSpeed;
     [SerializeField] private float reloadSpeed;
-    [SerializeField] private bool isLoaded;
+    [SerializeField] public bool isLoaded;
     [SerializeField] private GameObject m_canonBall;
     [SerializeField] private bool StartLoaded;
 
@@ -32,8 +32,8 @@ public class Canon : MonoBehaviour {
 		}
 	}
 
-	public void CanonReload(bool b){
-		if(!isReloading && !isLoaded && (b == Left))
+	public void CanonReload(bool left){
+		if(!isReloading && !isLoaded && (left == m_Left))
 			StartCoroutine("ReloadCor");
 	}
 
@@ -58,7 +58,7 @@ public class Canon : MonoBehaviour {
 			GameObject bullet = Instantiate(m_canonBall, m_shootPoint.position, m_shootPoint.rotation);
 			bullet.name = "CanonBall";
 			bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_bulletSpeed, ForceMode.Impulse);
-			if(Left){
+			if(m_Left){
 				bullet.GetComponent<ConstantForce>().force = new Vector3(transform.parent.parent.parent.GetComponent<Rigidbody>().velocity.magnitude, 0,0);
 			}else{
 				bullet.GetComponent<ConstantForce>().force = new Vector3(-transform.parent.parent.parent.GetComponent<Rigidbody>().velocity.magnitude, 0,0);

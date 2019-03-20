@@ -47,6 +47,9 @@ public class FloatingShip : MonoBehaviour {
 	[SerializeField] private float m_sailsUpSpeed;
 	[SerializeField] private float m_sailsDownSpeed;
 
+	[Header("Canons")]
+	[SerializeField] private Transform m_canons;
+
 	[Header("Brake")]
 	[SerializeField] private float m_brakeImpulse = 30;
 	[SerializeField] private float m_brakeForce = 1;
@@ -303,8 +306,22 @@ public class FloatingShip : MonoBehaviour {
 		SailsGoingDown = false;
 	}
 
-	//MOVEMENT
+	//CANONS
 
+	public bool ReloadCanon(bool left){
+
+		foreach (Transform child in m_canons)
+		{
+			if(child.GetComponent<Canon>()){
+				if(child.GetComponent<Canon>().isLoaded && child.GetComponent<Canon>().m_Left == left){
+					return false;
+				}
+				child.GetComponent<Canon>().CanonReload(left);
+			}
+		}
+		return true;
+	}
+	//MOVEMENT
 	void AddMainForce(float maxSpeed)
 	{
 		if(m_currentforwardSpeed < maxSpeed && !shipSlowingDown)
