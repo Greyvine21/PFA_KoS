@@ -182,7 +182,6 @@ public class UI : MonoBehaviour {
 
 		yield return new WaitForSeconds(0.5f);
 		
-		print("order ok");
 		txt.color = txtColorTemp;
 		txt.transform.localScale = txtSizeTemp;
 		

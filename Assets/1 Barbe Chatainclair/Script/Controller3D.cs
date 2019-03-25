@@ -54,7 +54,7 @@ public class Controller3D : MonoBehaviour {
 	{
 		CharInput();
         DetectingGround();
-        Aim();
+        //Aim();
 	}   
 
 	private void FixedUpdate()
@@ -128,7 +128,7 @@ public class Controller3D : MonoBehaviour {
     {
         if(m_fixedJointTemp == null){
             m_fixedJointTemp = gameObject.AddComponent<FixedJoint>();
-            m_fixedJointTemp.connectedBody = transform.parent.GetComponent<Rigidbody>();
+            m_fixedJointTemp.connectedBody = transform.parent.GetComponentInParent<Rigidbody>();
             //m_rbPlayer.isKinematic = true;
             //print("Add Joint");
         }
@@ -140,6 +140,24 @@ public class Controller3D : MonoBehaviour {
             //m_rbPlayer.isKinematic = false;
             //print("remove Joint");
         }
+    }
+
+    public void LockPlayerOnPoint(Transform point){
+    
+        UnfixPlayer();
+        transform.position = point.position;
+        transform.rotation = point.rotation;
+        m_Body.transform.rotation = point.rotation;
+        FixPlayer();
+        canMove = false;
+		m_isInteracting = false;
+    }
+    public void UnlockLockPlayerFromPoint(Transform point){
+        canMove = true;
+        m_isInteracting = false;
+        transform.rotation = point.rotation;
+        m_Body.transform.rotation = point.rotation;
+        UnfixPlayer();
     }
 
     private void DetectingGround()

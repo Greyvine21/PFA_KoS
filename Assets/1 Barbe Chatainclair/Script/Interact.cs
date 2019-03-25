@@ -17,7 +17,7 @@ public class Interact : MonoBehaviour {
 	void Start()
 	{
 		anim = GetComponent<Animator>();
-		m_textZone.text = m_text;
+		m_textZone.text = ": " + m_text;
 	}
 
 	public bool isZoneActive(){
@@ -41,17 +41,8 @@ public class Interact : MonoBehaviour {
 			if(!isInteractZoneActive){
 				if(m_player.m_isInteracting){
 					anim.SetBool("InteractControl",false);
-
-					m_player.UnfixPlayer();
-					m_player.transform.position = m_snapPoint.position;
-					m_player.transform.rotation = m_snapPoint.rotation;
-					m_player.m_Body.transform.rotation = m_snapPoint.rotation;
-
-					m_player.FixPlayer();
-
+					m_player.LockPlayerOnPoint(m_snapPoint);
 					isInteractZoneActive = true;
-					m_player.canMove = false;
-					m_player.m_isInteracting = false;
 				}
 			}
 			else{
@@ -63,13 +54,8 @@ public class Interact : MonoBehaviour {
 				//
 				if(m_player.m_isInteracting){
 					anim.SetBool("InteractControl",true);
-					m_player.UnfixPlayer();
-					//m_player.m_rbPlayer.velocity = Vector3.zero;
-					//m_player.m_rbPlayer.isKinematic = false;
-
+					m_player.UnlockLockPlayerFromPoint(m_snapPoint);
 					isInteractZoneActive = false;
-					m_player.canMove = true;
-					m_player.m_isInteracting = false;
 				}
 			}
 		}

@@ -3,31 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
+public struct LifeElem
+{
+    public Slider lifebar;
+    public float lifePoints;
+    public float MaxlifePoints;
+}
+
 public class healthManager : MonoBehaviour {
 
-    public Slider m_lifebar;
-    public float life = 100;
+    public LifeElem[] m_lifebars;
+    // public Slider m_lifebar;
+    // public float life = 100;
 
 	void Start()
 	{
-		m_lifebar.maxValue = life;
-	}
-	
-    void Update()
-    {
-        m_lifebar.value = life;
-        if(life <= 0){
-            life = 100;
+        for (int i = 0; i < m_lifebars.Length; i++)
+        {
+            m_lifebars[i].lifebar.maxValue = m_lifebars[i].MaxlifePoints;
+            m_lifebars[i].lifePoints = m_lifebars[i].MaxlifePoints;
+            m_lifebars[i].lifebar.value = m_lifebars[i].lifebar.maxValue;
+            //m_lifebars[i].lifePoints = m_lifebars[i].MaxlifePoints;
         }
+	}
+
+    public void DecreaseLife(int index, int damages){
+        m_lifebars[index].lifePoints -= damages;
+
+        if(m_lifebars[index].lifePoints <= 0){
+            m_lifebars[index].lifePoints = m_lifebars[index].MaxlifePoints;
+        }
+
+        m_lifebars[index].lifebar.value = m_lifebars[index].lifePoints;
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-		//print("collide with : " + other.name + " tag : " + other.tag);
-        if(other.gameObject.layer == 16){
-			//print("hit boat");
-			if(other.gameObject.name == "CanonBall")
-            	life -= other.gameObject.GetComponent<Bullet>().m_damage;
-		}
-    }
 }

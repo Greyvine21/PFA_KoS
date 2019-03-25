@@ -140,8 +140,7 @@ public class FloatingShip : MonoBehaviour {
         }
 
 		float m_inputH = Input.GetAxisRaw("Horizontal");
-        /*if (Mathf.Abs(m_inputH) > 1)
-            m_inputH = 1;*/
+
         //Steer left
         if (Input.GetKey(KeyCode.LeftArrow) || (m_inputH < 0 && rudderInteractZone.isZoneActive()))
         {
@@ -312,7 +311,7 @@ public class FloatingShip : MonoBehaviour {
 
 		foreach (Transform child in m_canons)
 		{
-			if(child.GetComponent<Canon>()){
+			if(child.GetComponent<Canon>() && child.gameObject.activeSelf){
 				if(child.GetComponent<Canon>().isLoaded && child.GetComponent<Canon>().m_Left == left){
 					return false;
 				}
