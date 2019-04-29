@@ -34,7 +34,7 @@ public class Curve_Editor : Editor {
 
 		Handles.color = Color.gray;
 		Handles.DrawLine(p0, p1);
-		Handles.DrawLine(p2, p3);
+		Handles.DrawLine(p1, p2);
 
 		//ShowDirection();
 		Handles.DrawBezier(p0, p3, p1, p2, Color.white, null, 2f);
@@ -56,10 +56,10 @@ public class Curve_Editor : Editor {
 
 	private void ShowDirection(){
 		Handles.color = Color.green;
-		Vector3 point = curve.GetPoint(0f);
+		Vector3 point = curve.GetWorldPoint(0f);
 		Handles.DrawLine(point, point + curve.GetDirection(0f) * directionScale);
 		for (int i = 1; i <= lineSteps; i++) {
-			point = curve.GetPoint(i / (float)lineSteps);
+			point = curve.GetWorldPoint(i / (float)lineSteps);
 			Handles.DrawLine(point, point + curve.GetDirection(i / (float)lineSteps) * directionScale);
 		}
 	}

@@ -6,31 +6,47 @@ using UnityEngine.UI;
 public class Canon : MonoBehaviour {
 
     [SerializeField] public bool m_Left;
+    [SerializeField] private Interact CanonZone;
 
     [Header("Shooting")]
-    [SerializeField] private Transform m_shootPoint;
+    [SerializeField] public Transform m_shootPoint;
     [SerializeField] private float m_bulletSpeed;
+    [SerializeField] private GameObject m_canonBall;
+
+    [Header("Reloading")]
+    [SerializeField] private bool StartLoaded;
     [SerializeField] private float reloadSpeed;
     [SerializeField] public bool isLoaded;
-    [SerializeField] private GameObject m_canonBall;
-    [SerializeField] private bool StartLoaded;
 
-    [Header("aiming Canon")]
-    [SerializeField] private Interact CanonZone;
-    [SerializeField] private Transform CanonPivotTransform;
-    [SerializeField] private float rotationCanon = 2f;
+    [Header("Aiming")]
+    [SerializeField] public float m_maxHeight;
+	
+    [Header("Vertical Rotation")]
+    [SerializeField] public Transform VerticalPivotTransform;
+    [SerializeField] private float verticalRotationSpeed = 0.8f;
+    [SerializeField] private float rangeAngleX = 60;
+    [SerializeField] private float offsetX = 0;
+
+    [Header("Horizontal Rotation")]
+    [SerializeField] public Transform HorizontalPivotTransform;
+    [SerializeField] private float horizontalRotationSpeed = 0.8f;
+    [SerializeField] private float rangeAngleY = 60;
 
 
     [Header("UI")]
     [SerializeField] private GameObject m_Bar;
 
     private float CanonRotation_X = 0f;
-     private float rotationAngle = 30;
-
+    private float CanonRotation_Y = 0f;
+	private Curve curve;
 	private bool isReloading;
+	private bool isLineActive;
 
 	void Start()
 	{
+		curve = transform.GetComponent<Curve>();
+		//curve.m_line.enabled = false;
+
 		if(StartLoaded){
 			isLoaded = true;
 			m_Bar.transform.localScale = new Vector3(1,1,1);
@@ -43,48 +59,77 @@ public class Canon : MonoBehaviour {
 
 	void Update()
 	{
+		if(CanonZone.isZoneActive()){
+			
+			if(!isLineActive)
+				curve.m_line.enabled = true;
+			float m_inputV = Input.GetAxisRaw("Vertical");
+			float m_inputH = Input.GetAxisRaw("Horizontal");
 
-		float m_inputV = Input.GetAxisRaw("Vertical");
+			//move Down
+			if (m_inputV > 0)
+			{
+				CanonRotation_X = VerticalPivotTransform.localEulerAngles.x + verticalRotationSpeed;
 
-		//move Down
-		if (Input.GetKey(KeyCode.LeftArrow) || (m_inputV > 0 && CanonZone.isZoneActive()))
-        {
-            CanonRotation_X = CanonPivotTransform.localEulerAngles.x + rotationCanon;
+				if (CanonRotation_X > (rangeAngleX/2 - offsetX) && CanonRotation_X < 270f)
+				{
+					CanonRotation_X = (rangeAngleX/2 - offsetX);
+				}
 
-            if (CanonRotation_X > rotationAngle && CanonRotation_X < 270f)
-            {
-                CanonRotation_X = rotationAngle;
-            }
-			// else{
-			// 	RudderRotation_Z = rudderTransform.localEulerAngles.z + (rotationRudderBlade * (360/rotationAngle));
+				VerticalPivotTransform.localEulerAngles = new Vector3(CanonRotation_X, 180, 0f);
+			}
+
+			//move Up
+			else if (m_inputV < 0)
+			{
+				CanonRotation_X = VerticalPivotTransform.localEulerAngles.x - verticalRotationSpeed;
+
+				if (CanonRotation_X < 360-(rangeAngleX/2 + offsetX) && CanonRotation_X > 90f)
+				{
+					CanonRotation_X = 360-(rangeAngleX/2 + offsetX);
+				}
+
+				VerticalPivotTransform.localEulerAngles = new Vector3(CanonRotation_X, 180, 0f);
+			}
+
+			//move Left
+			// if (m_inputH > 0)
+			// {
+			// 	CanonRotation_Y = HorizontalPivotTransform.localEulerAngles.y + horizontalRotationSpeed;
+
+			// 	if (CanonRotation_Y > rangeAngleY/2 && CanonRotation_Y < 270f)
+			// 	{
+			// 		CanonRotation_Y = rangeAngleY/2;
+			// 	}
+
+			// 	HorizontalPivotTransform.localEulerAngles = new Vector3(0, CanonRotation_Y, 0f);
 			// }
 
-            Vector3 newRotationRudderBlade = new Vector3(CanonRotation_X, 180, 0f);
-            //Vector3 newRotationRudder = new Vector3(0f, 0f, RudderRotation_Z);
+			// //move Right
+			// else if (m_inputH < 0)
+			// {
+			// 	CanonRotation_Y = HorizontalPivotTransform.localEulerAngles.y - horizontalRotationSpeed;
 
-            CanonPivotTransform.localEulerAngles = newRotationRudderBlade;
-			//rudderTransform.localEulerAngles = newRotationRudder;
-        }
+			// 	if (CanonRotation_Y < 360-rangeAngleY/2 && CanonRotation_Y > 90f)
+			// 	{
+			// 		CanonRotation_Y = 360-rangeAngleY/2;
+			// 	}
 
-        //move Up
-        else if (Input.GetKey(KeyCode.RightArrow) || (m_inputV < 0 && CanonZone.isZoneActive()))
-        {
-            CanonRotation_X = CanonPivotTransform.localEulerAngles.x - rotationCanon;
-
-            if (CanonRotation_X < 360-rotationAngle && CanonRotation_X > 90f)
-            {
-                CanonRotation_X = 360-rotationAngle;
-            }
-			// else{
-			// 	RudderRotation_Z = rudderTransform.localEulerAngles.z - (rotationRudderBlade * (360/rotationAngle));
+			// 	HorizontalPivotTransform.localEulerAngles = new Vector3(0, CanonRotation_Y, 0f);
 			// }
+		}
+		else{
+			if(isLineActive)
+				curve.m_line.enabled = false;
+		}
+	}
 
-            Vector3 newRotationRudderBlade = new Vector3(CanonRotation_X, 180, 0f);
-            //Vector3 newRotationRudder = new Vector3(0f, 0f, RudderRotation_Z);
+	public void ShowLine(){
 
-            CanonPivotTransform.localEulerAngles = newRotationRudderBlade;
-			//rudderTransform.localEulerAngles = newRotationRudder;
-        }
+	}
+
+	public void HideLine(){
+
 	}
 
 	public void CanonReload(bool left){
@@ -109,9 +154,14 @@ public class Canon : MonoBehaviour {
 
 	public void CanonShoot(){
 		if(isLoaded){
-			//print(gameObject.name + " shoot");
-			GameObject bullet = Instantiate(m_canonBall, m_shootPoint.position, m_shootPoint.rotation);
+			print(gameObject.name + " shoot");
+			GameObject bullet = Instantiate(m_canonBall, m_shootPoint.position, m_shootPoint.rotation, transform);
 			bullet.name = "CanonBall";
+
+			bullet.GetComponent<CurveWalker>().m_curve = curve;
+			bullet.GetComponent<CurveWalker>().m_travelTime = m_bulletSpeed;
+			bullet.GetComponent<CurveWalker>().launch = true;
+			/*
 			bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_bulletSpeed, ForceMode.Impulse);
 			if(m_Left){
 				//bullet.GetComponent<ConstantForce>().force = new Vector3(transform.parent.parent.parent.GetComponent<Rigidbody>().velocity.magnitude, 0,0);
@@ -119,6 +169,7 @@ public class Canon : MonoBehaviour {
 			}else{
 				bullet.GetComponent<ConstantForce>().force = new Vector3(-transform.GetComponentInParent<Rigidbody>().velocity.magnitude, 0,0);
 			}
+			*/
 
 			isLoaded = false;
 			m_Bar.transform.localScale = new Vector3(0,1,1);

@@ -11,48 +11,49 @@ public enum SplineWalkerMode {
 public class CurveWalker : MonoBehaviour {
 
 	public Curve m_curve;
-	public float m_duration;
+	public float m_travelTime;
 	public SplineWalkerMode mode;
 	private float progress;
 
+	public bool launch = false;
+
 	private bool goingForward = true;
-	// Use this for initialization
-	void Start () {
-		
-	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(goingForward){
-			progress += Time.deltaTime / m_duration;
+		if(launch){
+			if(goingForward){
+				progress += Time.deltaTime / m_travelTime;
 
-			if(progress > 1){
-				switch (mode)
-				{
-					case SplineWalkerMode.Loop:
-						progress -= 1f;
-					break;
-					case SplineWalkerMode.Once:
-						progress = 1f;
-					break;
-					case SplineWalkerMode.PingPong:
-						progress = 2f - progress;
-						goingForward = false;
-					break;
-					default:
-						progress = 1f;
-					break;
+				if(progress > 1){
+					switch (mode)
+					{
+						case SplineWalkerMode.Loop:
+							progress -= 1f;
+						break;
+						case SplineWalkerMode.Once:
+							Destroy(gameObject);
+							progress = 1f;
+						break;
+						case SplineWalkerMode.PingPong:
+							progress = 2f - progress;
+							goingForward = false;
+						break;
+						default:
+							progress = 1f;
+						break;
+					}
 				}
 			}
-		}
-		else{
-			progress -= Time.deltaTime / m_duration;
-			if(progress < 0f){
-				progress = -progress;
-				goingForward = true;
+			else{
+				progress -= Time.deltaTime / m_travelTime;
+				if(progress < 0f){
+					progress = -progress;
+					goingForward = true;
+				}
 			}
+			
+			transform.position = (m_curve.GetLocalPoint(progress));
 		}
-		
-		transform.localPosition = m_curve.GetPoint(progress);
 	}
 }

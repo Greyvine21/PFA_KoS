@@ -114,9 +114,9 @@ public class Controller3D : MonoBehaviour {
     private IEnumerator Shoot(){
         canShoot = false;
         //print("shoot");
-        GameObject bullet = Instantiate(m_Bullet, m_shootPoint.position, m_shootPoint.rotation);
-        bullet.name = "Bullet";
-        bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_bulletSpeed, ForceMode.Impulse);
+        //GameObject bullet = Instantiate(m_Bullet, m_shootPoint.position, m_shootPoint.rotation);
+        //bullet.name = "Bullet";
+        //bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_bulletSpeed, ForceMode.Impulse);
         transform.parent.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
 
         yield return new WaitForSeconds(m_ShootDelay);
