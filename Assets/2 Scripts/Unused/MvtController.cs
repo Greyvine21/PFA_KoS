@@ -71,6 +71,7 @@ public class MvtController : MonoBehaviour {
         m_inputH = Input.GetAxis("Horizontal");
         if (Mathf.Abs(m_inputH) > 1)
             m_inputH = 1;
+        
         m_inputV = Input.GetAxis("Vertical");
         if (Mathf.Abs(m_inputV) > 1)
             m_inputV = 1;

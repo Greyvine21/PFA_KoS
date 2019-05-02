@@ -36,12 +36,14 @@ public class Controller3D : MonoBehaviour {
     private FixedJoint m_fixedJointTemp;
     private Transform m_Cam;
     private LineRenderer m_lineGun;
+    private FloatingShip m_ship;
 
     public bool canMove = true, canInteract = true, canShoot = true;
 
 	void Start () {
 		m_rbPlayer = GetComponent<Rigidbody>();       
         m_lineGun = GetComponent<LineRenderer>();
+        m_ship = transform.GetComponentInParent<FloatingShip>();
 		
 		if (Camera.main != null)
             m_Cam = Camera.main.transform;
@@ -111,13 +113,16 @@ public class Controller3D : MonoBehaviour {
         }
     }
 
-    private IEnumerator Shoot(){
+    private IEnumerator Shoot(bool isLeft){
         canShoot = false;
         //print("shoot");
         //GameObject bullet = Instantiate(m_Bullet, m_shootPoint.position, m_shootPoint.rotation);
         //bullet.name = "Bullet";
         //bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_bulletSpeed, ForceMode.Impulse);
-        transform.parent.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
+        if(isLeft)
+            m_ship.m_canonsleft.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
+        else
+            m_ship.m_canonsRight.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
 
         yield return new WaitForSeconds(m_ShootDelay);
 
@@ -192,6 +197,10 @@ public class Controller3D : MonoBehaviour {
         if (Mathf.Abs(m_inputV) > 1)
             m_inputV = 1;
 
+        if(Input.GetButtonUp("X360_Start")){
+            transform.position = transform.parent.position;
+        }
+
         //INTERACT
         if(Input.GetButtonDown("X360_A") && canInteract){
             m_isInteracting = true;
@@ -202,7 +211,10 @@ public class Controller3D : MonoBehaviour {
 
         //SHOOT
         if(Input.GetAxisRaw("X360_Triggers") < 0 && canShoot){
-            StartCoroutine("Shoot");
+            StartCoroutine("Shoot", true);
+        }
+        if(Input.GetAxisRaw("X360_Triggers") > 0 && canShoot){
+            StartCoroutine("Shoot", false);
         }
 	}
 }

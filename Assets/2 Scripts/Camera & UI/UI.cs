@@ -87,12 +87,12 @@ public class UI : MonoBehaviour {
 				if(Input.GetButtonDown("X360_B") && !textCoroutine){	//droite
 					//m_minions.BroadcastMessage("MoveTorightCannon");
 					//m_ship.BroadcastMessage("CanonReload", false, SendMessageOptions.DontRequireReceiver);
-					StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, m_ship.ReloadCanon(false)));
+					StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, m_ship.ReloadCanonRight()));
 				}
 				if(Input.GetButtonDown("X360_X") && !textCoroutine){	//gauche
 					//m_minions.BroadcastMessage("MoveToleftCannon");
 					//m_ship.BroadcastMessage("CanonReload", true, SendMessageOptions.DontRequireReceiver);
-					StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, m_ship.ReloadCanon(true)));
+					StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, m_ship.ReloadCanonLeft()));
 				}
 			break;
 			case Contextes.Navigation:

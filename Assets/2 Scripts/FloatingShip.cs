@@ -16,6 +16,7 @@ public enum SailsState{
 	sailsHundredPerCent
 
 }
+
 public class FloatingShip : MonoBehaviour {
 
 	[Header("References")]	
@@ -32,6 +33,7 @@ public class FloatingShip : MonoBehaviour {
 	[SerializeField] private Buoy[] m_buoy;
 
 	[Header("Turning force")]
+    [SerializeField] private Transform FrontTransform;
     [SerializeField] private Transform rudderBladeTransform;
     [SerializeField] private Transform rudderTransform;
     [SerializeField] private Interact rudderInteractZone;
@@ -48,7 +50,13 @@ public class FloatingShip : MonoBehaviour {
 	[SerializeField] private float m_sailsDownSpeed;
 
 	[Header("Canons")]
-	[SerializeField] private Transform m_canons;
+	[SerializeField] public Transform m_canonsRight;
+	[SerializeField] public Transform m_canonsleft;
+    [SerializeField] public float m_bulletSpeed;
+    [SerializeField] public float m_ForceCanonMultiplier;
+    [SerializeField] public GameObject m_canonBall;
+    [SerializeField] public float reloadSpeed;
+    [SerializeField] public AudioClip[] CanonsClips;
 
 	[Header("Brake")]
 	[SerializeField] private float m_brakeImpulse = 30;
@@ -62,6 +70,7 @@ public class FloatingShip : MonoBehaviour {
 
 	//private float forward0, forward50, forward100;
 	private float forward;
+	private int ActiveCannonsRight, ActiveCannonsLeft;
 	private bool sailsGoingUp, SailsGoingDown;
 	//private bool isRudderActive = false;
 	private bool shipSlowingDown = false;
@@ -74,11 +83,27 @@ public class FloatingShip : MonoBehaviour {
 	void Start()
 	{
 		m_shipRB = GetComponent<Rigidbody>();
-		m_shipRB.centerOfMass = m_CenterOfMass.position;
+		//m_shipRB.centerOfMass = m_CenterOfMass.position;
 
 		/*forward100 = m_MaxForwardSpeed;
 		forward50 = m_MaxForwardSpeed/2;
 		forward0 = m_MaxForwardSpeed/10;*/
+
+		ActiveCannonsRight = 0;
+		foreach (Transform child in m_canonsRight)
+		{
+			if(child.gameObject.activeSelf){
+				ActiveCannonsRight ++;
+			}
+		}
+
+		ActiveCannonsLeft = 0;
+		foreach (Transform child in m_canonsleft)
+		{
+			if(child.gameObject.activeSelf){
+				ActiveCannonsLeft ++;
+			}
+		}
 
 		foreach (Transform sail in m_sails)
 		{
@@ -159,6 +184,7 @@ public class FloatingShip : MonoBehaviour {
             Vector3 newRotationRudder = new Vector3(0f, 0f, RudderRotation_Z);
 
             rudderBladeTransform.localEulerAngles = newRotationRudderBlade;
+			FrontTransform.localEulerAngles = - newRotationRudderBlade;
 			rudderTransform.localEulerAngles = newRotationRudder;
         }
 
@@ -180,6 +206,7 @@ public class FloatingShip : MonoBehaviour {
             Vector3 newRotationRudder = new Vector3(0f, 0f, RudderRotation_Z);
 
             rudderBladeTransform.localEulerAngles = newRotationRudderBlade;
+			FrontTransform.localEulerAngles = -newRotationRudderBlade;
 			rudderTransform.localEulerAngles = newRotationRudder;
         }
     }
@@ -307,15 +334,29 @@ public class FloatingShip : MonoBehaviour {
 
 	//CANONS
 
-	public bool ReloadCanon(bool left){
+	public bool ReloadCanonLeft(){
 
-		foreach (Transform child in m_canons)
+		foreach (Transform child in m_canonsleft)
 		{
-			if(child.GetComponent<Canon>() && child.gameObject.activeSelf){
-				if(child.GetComponent<Canon>().isLoaded && child.GetComponent<Canon>().m_Left == left){
+			if(child.GetComponent<Shoot_Canon>() && child.gameObject.activeSelf){
+				if(child.GetComponent<Shoot_Canon>().isLoaded){
 					return false;
 				}
-				child.GetComponent<Canon>().CanonReload(left);
+				child.GetComponent<Shoot_Canon>().CanonReload(ActiveCannonsLeft);
+			}
+		}
+		return true;
+	}
+
+	public bool ReloadCanonRight(){
+
+		foreach (Transform child in m_canonsRight)
+		{
+			if(child.GetComponent<Shoot_Canon>() && child.gameObject.activeSelf){
+				if(child.GetComponent<Shoot_Canon>().isLoaded){
+					return false;
+				}
+				child.GetComponent<Shoot_Canon>().CanonReload(ActiveCannonsRight);
 			}
 		}
 		return true;
@@ -362,6 +403,9 @@ public class FloatingShip : MonoBehaviour {
 
 		if((RudderBladeRotation_Y > 5 && RudderBladeRotation_Y < 355) && !anchorDown)
 		{
+			m_shipRB.AddForceAtPosition(-turningForceTemp*0.75f, FrontTransform.position, m_force);
+        	Debug.DrawRay(FrontTransform.position, turningForceTemp, Color.red);
+			//
 			m_shipRB.AddForceAtPosition(turningForceTemp, rudderBladeTransform.position, m_force);
         	Debug.DrawRay(rudderBladeTransform.position, turningForceTemp, Color.red);
 		}
@@ -390,7 +434,7 @@ public class FloatingShip : MonoBehaviour {
 			//print(point.transform.name + " :  x: " + point.transform.position.x + "  y: " + point.transform.position.y);
 			m_waterLevel = m_ocean.GetWaterHeightAtLocation(point.transform.position.x, point.transform.position.y);
 			/*/
-			m_waterLevel = 0;
+			m_waterLevel = -3;
 			//m_waterLevel = WaterController.current.GetWaveYPos(point.position, Time.time);
 			//*/
 

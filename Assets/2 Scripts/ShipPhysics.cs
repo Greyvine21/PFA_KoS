@@ -21,7 +21,6 @@ public class ShipPhysics : MonoBehaviour {
 	
 	void Start () {
 		m_shipRB = GetComponent<Rigidbody>();
-		
 	}
 	
 	void FixedUpdate()
@@ -45,6 +44,7 @@ public class ShipPhysics : MonoBehaviour {
 		m_shipRB.AddForceAtPosition(FloatingForce, point.transform.position, m_force);
 		Debug.DrawRay(point.transform.position, FloatingForce, Color.yellow,0.5f);
 	}
+	
 	void Float()
 	{
 		foreach (Buoy point in m_buoy)
@@ -58,6 +58,7 @@ public class ShipPhysics : MonoBehaviour {
 			//*/
 
 			if(point.transform.position.y < m_waterLevel){
+
 				float diff = m_waterLevel - point.transform.position.y;
 				//print(point.name + " diff = "+ diff);
 				if(Mathf.Abs(diff) > m_maxFloating)

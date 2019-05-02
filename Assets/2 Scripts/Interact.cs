@@ -33,6 +33,7 @@ public class Interact : MonoBehaviour {
 
 	void OnTriggerStay(Collider other)
 	{
+		print(other.name);
 		if(other.gameObject.tag == "Player"){
 			//print("player in area :" + transform.parent.name);
 			if(m_player == null)

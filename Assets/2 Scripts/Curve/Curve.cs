@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Curve : MonoBehaviour {
+    public Shoot_Canon m_canonShoot;
     public Canon m_canon;
 
     [Header("Curve parameters")]
@@ -22,11 +23,11 @@ public class Curve : MonoBehaviour {
 	void Start()
 	{
 		if(!m_canon)
-			m_canon = GetComponent<Canon>();
+			m_canonShoot = GetComponent<Shoot_Canon>();
 		if(!m_line)
 			m_line = GetComponent<LineRenderer>();
 		
-		Shootpoint = m_canon.m_shootPoint;
+		Shootpoint = m_canonShoot.m_shootPoint[0];
 		m_line.positionCount = LinePrecision;
 	}
 
