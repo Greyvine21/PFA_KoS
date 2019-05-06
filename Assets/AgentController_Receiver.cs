@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AgentController_Receiver : MonoBehaviour {
 
-	public GameObject m_ControllerAgent;
+	public AgentController m_ControllerAgent;
 
 	private FloatingShip m_ship;
 
@@ -17,7 +17,7 @@ public class AgentController_Receiver : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-		transform.position = m_ship.transform.position + m_ControllerAgent.transform.position;
-		transform.rotation = m_ship.transform.rotation * m_ControllerAgent.transform.rotation;
+		transform.localPosition = m_ControllerAgent.transform.localPosition;
+		transform.localRotation = m_ControllerAgent.transform.localRotation;
 	}
 }

@@ -19,11 +19,15 @@ public class ActionsController : MonoBehaviour {
     public bool canInteract = true, canShoot = true;
 	[HideInInspector] public float m_inputH;
 	[HideInInspector] public float m_inputV;
+    [HideInInspector] public AgentController_Receiver m_receiver;
     private FloatingShip m_ship;
+
+
 
 	// Use this for initialization
 	void Start () {
         m_ship = transform.GetComponentInParent<FloatingShip>();
+        m_receiver = GetComponent<AgentController_Receiver>();
 	}
 	
 	// Update is called once per frame
@@ -34,10 +38,10 @@ public class ActionsController : MonoBehaviour {
 
 	private void CharInput(){
         //MVT
-        m_inputH = Input.GetAxisRaw("Horizontal");
+        m_inputH = Input.GetAxis("Horizontal");
         if (Mathf.Abs(m_inputH) > 1)
             m_inputH = 1;
-        m_inputV = Input.GetAxisRaw("Vertical");
+        m_inputV = Input.GetAxis("Vertical");
         if (Mathf.Abs(m_inputV) > 1)
             m_inputV = 1;
 
