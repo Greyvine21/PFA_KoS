@@ -12,14 +12,13 @@ public class AgentController : MonoBehaviour {
 	public Transform m_camPivot;
 	public Transform m_camOffset;
 
-	private NavMeshAgent m_agent;
+	public NavMeshAgent m_agent;
 	//private float m_inputH;
 	//private float m_inputV;
     private Transform m_Cam;
     //private Vector3 m_CamForward;
 	[HideInInspector] public Vector3 m_Move;
 
-	private Vector3 Target;
 	private bool isMoving;
 	public bool m_agentCanMove = true;
 
@@ -52,7 +51,7 @@ public class AgentController : MonoBehaviour {
         else
             Debug.LogError("No main Camera");
 		
-        isMoving = (m_Move.sqrMagnitude > 0);
+        //isMoving = (m_Move.sqrMagnitude > 0);
 
 
 		//Target = transform.position + m_Move * 100;

@@ -16,17 +16,19 @@ public class ActionsController : MonoBehaviour {
 
     [Header("Monitoring")]
 	public bool m_isInteracting;
-    public bool canInteract = true, canShoot = true;
+    public bool canInteract = true, canShootLeft = true, canShootRight = true;
 	[HideInInspector] public float m_inputH;
 	[HideInInspector] public float m_inputV;
     [HideInInspector] public AgentController_Receiver m_receiver;
-    private FloatingShip m_ship;
+    private PlayerShipBehaviour m_ship;
+    private CanonManager m_Canons;
 
 
 
 	// Use this for initialization
 	void Start () {
-        m_ship = transform.GetComponentInParent<FloatingShip>();
+        //m_ship = transform.GetComponentInParent<PlayerShipBehaviour>();
+        m_Canons = transform.GetComponentInParent<CanonManager>();
         m_receiver = GetComponent<AgentController_Receiver>();
 	}
 	
@@ -45,8 +47,13 @@ public class ActionsController : MonoBehaviour {
         if (Mathf.Abs(m_inputV) > 1)
             m_inputV = 1;
 
-        if(Input.GetButtonUp("X360_Start")){
-            transform.position = transform.parent.position;
+        //
+        if(Input.GetButtonUp("X360_Start") || Input.GetKeyDown(KeyCode.Escape)){
+#if UNITY_EDITOR
+            Debug.Break();
+#else
+            Application.Quit();
+#endif
         }
 
         //INTERACT
@@ -58,10 +65,10 @@ public class ActionsController : MonoBehaviour {
         }
 
         //SHOOT
-        if(Input.GetAxisRaw("X360_Triggers") < 0 && canShoot){
+        if(Input.GetAxisRaw("X360_LTrigger") > 0 && canShootLeft){
             StartCoroutine("Shoot", true);
         }
-        if(Input.GetAxisRaw("X360_Triggers") > 0 && canShoot){
+        if(Input.GetAxisRaw("X360_RTrigger") > 0 && canShootRight){
             StartCoroutine("Shoot", false);
         }
 	}
@@ -82,18 +89,26 @@ public class ActionsController : MonoBehaviour {
     // }
 
     private IEnumerator Shoot(bool isLeft){
-        canShoot = false;
+        canShootLeft = !isLeft;
+        canShootRight = isLeft;
         //print("shoot");
         //GameObject bullet = Instantiate(m_Bullet, m_shootPoint.position, m_shootPoint.rotation);
         //bullet.name = "Bullet";
         //bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_bulletSpeed, ForceMode.Impulse);
-        if(isLeft)
-            m_ship.m_canonsleft.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
-        else
-            m_ship.m_canonsRight.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
+        if(isLeft){
+            //m_ship.m_canonsLeft.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
+            m_Canons.ShootCanon(m_Canons.m_canonsLeft);
+            m_Canons.ReloadCanon(m_Canons.m_canonsLeft, m_Canons.ActiveCannonsLeft);
+        }
+        else{
+            //m_ship.m_canonsRight.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
+            m_Canons.ShootCanon(m_Canons.m_canonsRight);
+            m_Canons.ReloadCanon(m_Canons.m_canonsRight, m_Canons.ActiveCannonsRight);
+        }
 
         yield return new WaitForSeconds(m_ShootDelay);
 
-        canShoot = true;
+        canShootLeft = true;
+        canShootRight = true;
     }
 }

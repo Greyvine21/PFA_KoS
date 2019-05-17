@@ -44,6 +44,7 @@ public class Interact : MonoBehaviour {
 					anim.SetBool("InteractControl",false);
 					m_player.m_isInteracting = false;
 
+					m_player.m_receiver.m_ControllerAgent.m_agent.enabled = false;
 					m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  false;
 					m_player.m_receiver.m_ControllerAgent.transform.position =  m_snapPoint.position;
 					m_player.m_receiver.m_ControllerAgent.transform.rotation =  m_snapPoint.rotation;
@@ -62,6 +63,7 @@ public class Interact : MonoBehaviour {
 					anim.SetBool("InteractControl",true);
 					m_player.m_isInteracting = false;
 
+					m_player.m_receiver.m_ControllerAgent.m_agent.enabled = true;
 					m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  true;
 					isInteractZoneActive = false;
 				}
@@ -74,6 +76,7 @@ public class Interact : MonoBehaviour {
 		if(other.gameObject.tag == "Player"){
 			anim.SetBool("InteractControl",false);
 			if(isInteractZoneActive){
+				m_player.m_receiver.m_ControllerAgent.m_agent.enabled = true;
 				m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  true;
 				isInteractZoneActive = false;
 			}

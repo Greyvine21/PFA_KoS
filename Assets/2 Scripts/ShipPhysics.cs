@@ -14,7 +14,7 @@ public class ShipPhysics : MonoBehaviour {
 
 	[Header("Monitoring")]
 	[SerializeField] private float m_waterLevel;
-	[SerializeField] private Vector3 m_shipVelocity;
+	//[SerializeField] private Vector3 m_shipVelocity;
 	private Rigidbody m_shipRB;
 
 	
@@ -77,7 +77,7 @@ public class ShipPhysics : MonoBehaviour {
 				}
 			}
 		}
-		m_shipVelocity = m_shipRB.velocity;
+		//m_shipVelocity = m_shipRB.velocity;
 
 		/*if(m_shipMagnitude > m_maxVelocity){
 			m_shipRB.velocity = Vector3.ClampMagnitude(m_shipRB.velocity, m_maxVelocity);
