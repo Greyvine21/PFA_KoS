@@ -71,7 +71,7 @@ public class Canon : MonoBehaviour {
 		}
 
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//ROTATION
@@ -243,8 +243,10 @@ public class Canon : MonoBehaviour {
 		bullet.name = "CanonBall";
 
 		//Sound
+		if(m_source.priority != m_Manager.m_priority)
+			m_source.priority = m_Manager.m_priority;
 		if(m_source != null)
-			m_source.PlayOneShot(m_Manager.CanonsClips[Random.Range(0, m_Manager.CanonsClips.Length)]);
+			m_source.PlayOneShot(m_Manager.CanonsClips[Random.Range(0, m_Manager.CanonsClips.Length)], m_Manager.m_volume);
 
 		//Play FX
 		if(point.GetChild(0).GetComponent<ParticleSystem>() != null)

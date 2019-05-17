@@ -13,6 +13,8 @@ public class CanonManager : MonoBehaviour {
     [SerializeField] public float m_bulletSpeed;
     [SerializeField] public float m_ForceCanonMultiplier;
     [SerializeField] public GameObject m_canonBall;
+    [SerializeField] [Range(0,5)] public float m_volume;
+    [SerializeField] [Range(0,256)] public int m_priority = 128;
     [SerializeField] public AudioClip[] CanonsClips;
 
 	[Header("Canons Reload")]    
