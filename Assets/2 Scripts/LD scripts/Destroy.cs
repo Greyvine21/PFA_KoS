@@ -25,7 +25,7 @@ public class Destroy : MonoBehaviour
         {
             for (int i =0; i<destroy.Length; i++ )
             {
-                GameObject effectIns = (GameObject) Instantiate(explosion, zone.transform.position, zone.transform.rotation);
+                //GameObject effectIns = (GameObject)Instantiate(explosion, zone.transform.position, zone.transform.rotation);
                 destroy[i].SetActive(false);
             }
         }

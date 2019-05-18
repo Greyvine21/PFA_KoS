@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Curve : MonoBehaviour {
-    public Shoot_Canon m_canonShoot;
+    public Canon m_canonShoot;
     public Canon m_canon;
 
     [Header("Curve parameters")]
@@ -23,7 +23,7 @@ public class Curve : MonoBehaviour {
 	void Start()
 	{
 		if(!m_canon)
-			m_canonShoot = GetComponent<Shoot_Canon>();
+			m_canonShoot = GetComponent<Canon>();
 		if(!m_line)
 			m_line = GetComponent<LineRenderer>();
 		
@@ -33,7 +33,7 @@ public class Curve : MonoBehaviour {
 
 	void Update()
 	{
-		Transform origin = m_canon.HorizontalPivotTransform;
+		//Transform origin = m_canon.HorizontalPivotTransform;
 		float CanonRotationXEuler = m_canon.VerticalPivotTransform.localEulerAngles.x;
 
 		//
@@ -56,10 +56,10 @@ public class Curve : MonoBehaviour {
 		points[1] = origin.position + Shootpoint.forward * (P1_X/Mathf.Cos(angleCanon*Mathf.Deg2Rad));
 		points[2] = origin.position + new Vector3(P2_X,0,0);
 		/*/
-		points[1] = Shootpoint.position + Shootpoint.forward * m_canon.m_maxHeight;
+		//points[1] = Shootpoint.position + Shootpoint.forward * m_canon.m_maxHeight;
 		//points[2] = new Vector3((points[1].z - points[0].z)*2, origin.position.y, origin.position.x);
-		print("Angle : " + angleCanon + "   Cos : " + Mathf.Cos(angleCanon) + "   length : " + Mathf.Abs(m_canon.m_maxHeight* Mathf.Cos(angleCanon)));
-		points[2] = origin.position + origin.forward * Mathf.Abs(m_canon.m_maxHeight* Mathf.Cos(angleCanon));
+		//print("Angle : " + angleCanon + "   Cos : " + Mathf.Cos(angleCanon) + "   length : " + Mathf.Abs(m_canon.m_maxHeight* Mathf.Cos(angleCanon)));
+		//points[2] = origin.position + origin.forward * Mathf.Abs(m_canon.m_maxHeight* Mathf.Cos(angleCanon));
 		//points[2] = origin.position + origin.forward + new Vector3(Mathf.Cos(angleCanon*Mathf.Deg2Rad), Mathf.Sin(angleCanon*Mathf.Deg2Rad), 0) * m_canon.m_maxHeight; 
 
 		//points[2] = new Vector3(points[1].x, 0, points[1].z) +

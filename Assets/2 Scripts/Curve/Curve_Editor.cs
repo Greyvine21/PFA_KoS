@@ -1,6 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(Curve))]
 public class Curve_Editor : Editor {
 
@@ -78,3 +79,4 @@ public class Curve_Editor : Editor {
 		return point;
 	}
 }
+#endif

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 [System.Serializable]
 public struct Buoy{
 	public Transform transform;
@@ -14,73 +13,70 @@ public enum SailsState{
 	sailsZeroPerCent = 0,
 	sailsFiftyPerCent,
 	sailsHundredPerCent
-
 }
 
 public class FloatingShip : MonoBehaviour {
 
-	[Header("References")]	
-	[SerializeField] private Transform m_floatingHeight;
-	[SerializeField] private Transform m_CenterOfMass;
-	[SerializeField] private Controller3D m_Player;
-	[SerializeField] private Ocean m_ocean;
+	[Header("References")]
+	[SerializeField] protected Transform m_CenterOfMass;
+	[SerializeField] protected Ocean m_ocean;
 
-	[Header("Floating force")]	
-	[SerializeField] private float m_floatingCoef;
-	[SerializeField] private float m_maxFloating = 4f;
-	[SerializeField] private ForceMode m_force;
+	[Header("Floating force")]
+	[SerializeField] protected bool useOcean;
+	[SerializeField] protected float m_floatingCoef;
+	[SerializeField] protected float m_maxFloating = 4f;
+	[SerializeField] protected ForceMode m_force;
 	//[SerializeField] private float m_maxVelocity = 4f;
-	[SerializeField] private Buoy[] m_buoy;
+	[SerializeField] protected Buoy[] m_buoy;
 
 	[Header("Turning force")]
-    [SerializeField] private Transform FrontTransform;
-    [SerializeField] private Transform rudderBladeTransform;
-    [SerializeField] private Transform rudderTransform;
-    [SerializeField] private Interact rudderInteractZone;
-     private float rotationAngle = 30;
-    [SerializeField] private float m_turningForce;
-    [SerializeField] private float rotationRudderBlade = 2f;
+    [SerializeField] protected Transform FrontTransform;
+    [SerializeField] protected Transform rudderBladeTransform;
+    [SerializeField] protected Transform rudderTransform;
+    [SerializeField] protected Interact rudderInteractZone;
+    protected float rotationAngle = 30;
+    [SerializeField] protected float m_turningForce;
+    [SerializeField] protected float rotationRudderBlade = 2f;
 
 	[Header("Sails")]
 	[SerializeField] public SailsState m_sailsSate = SailsState.sailsZeroPerCent;
-	[SerializeField] private float m_MaxForwardSpeed;
-	[SerializeField] private float m_forwardAcceleration;
-	[SerializeField] private Transform[] m_sails;
-	[SerializeField] private float m_sailsUpSpeed;
-	[SerializeField] private float m_sailsDownSpeed;
+	[SerializeField] protected float m_MaxForwardSpeed;
+	[SerializeField] protected float m_forwardAcceleration;
+	[SerializeField] protected Transform[] m_sails;
+	[SerializeField] protected float m_sailsUpSpeed;
+	[SerializeField] protected float m_sailsDownSpeed;
 
-	[Header("Canons")]
-	[SerializeField] public Transform m_canonsRight;
-	[SerializeField] public Transform m_canonsleft;
-    [SerializeField] public float m_bulletSpeed;
-    [SerializeField] public float m_ForceCanonMultiplier;
-    [SerializeField] public GameObject m_canonBall;
-    [SerializeField] public float reloadSpeed;
-    [SerializeField] public AudioClip[] CanonsClips;
+	// [Header("Canons")]
+	// [SerializeField] public Transform m_canonsRight;
+	// [SerializeField] public Transform m_canonsLeft;
+    // [SerializeField] public float m_bulletSpeed;
+    // [SerializeField] public float m_ForceCanonMultiplier;
+    // [SerializeField] public GameObject m_canonBall;
+    // [SerializeField] public float reloadSpeed;
+    // [SerializeField] public AudioClip[] CanonsClips;
 
 	[Header("Brake")]
-	[SerializeField] private float m_brakeImpulse = 30;
-	[SerializeField] private float m_brakeForce = 1;
+	[SerializeField] protected float m_brakeImpulse = 30;
+	[SerializeField] protected float m_brakeForce = 1;
 
 	[Header("Monitoring")]
 	public bool anchorDown = false;
-	[SerializeField] private float m_currentforwardSpeed;
-	[SerializeField] private float m_waterLevel;
-	[SerializeField] private Vector3 m_shipVelocity;
+	[SerializeField] protected float m_currentforwardSpeed;
+	[SerializeField] protected float m_waterLevel;
+	[SerializeField] public Vector3 m_shipVelocity;
 
 	//private float forward0, forward50, forward100;
-	private float forward;
-	private int ActiveCannonsRight, ActiveCannonsLeft;
-	private bool sailsGoingUp, SailsGoingDown;
+	protected float forward;
+	protected bool sailsGoingUp, SailsGoingDown;
 	//private bool isRudderActive = false;
-	private bool shipSlowingDown = false;
-	private SailsState m_sailsStateOLD;
-    private float RudderBladeRotation_Y = 0f;
-    private float RudderRotation_Z = 0f;
-	private Rigidbody m_shipRB;
+	protected bool shipSlowingDown = false;
+	protected SailsState m_sailsStateOLD;
+    protected float RudderBladeRotation_Y = 0f;
+    protected float RudderRotation_Z = 0f;
+	public Rigidbody m_shipRB;
 
 
-	void Start()
+	protected void Start()
 	{
 		m_shipRB = GetComponent<Rigidbody>();
 		//m_shipRB.centerOfMass = m_CenterOfMass.position;
@@ -88,22 +84,6 @@ public class FloatingShip : MonoBehaviour {
 		/*forward100 = m_MaxForwardSpeed;
 		forward50 = m_MaxForwardSpeed/2;
 		forward0 = m_MaxForwardSpeed/10;*/
-
-		ActiveCannonsRight = 0;
-		foreach (Transform child in m_canonsRight)
-		{
-			if(child.gameObject.activeSelf){
-				ActiveCannonsRight ++;
-			}
-		}
-
-		ActiveCannonsLeft = 0;
-		foreach (Transform child in m_canonsleft)
-		{
-			if(child.gameObject.activeSelf){
-				ActiveCannonsLeft ++;
-			}
-		}
 
 		foreach (Transform sail in m_sails)
 		{
@@ -125,94 +105,54 @@ public class FloatingShip : MonoBehaviour {
 		}
 	}
 
-	void Update() 
-	{
-        UserInput();
-		SailsStateUpdate();
-    }
 
-	void FixedUpdate()
-	{	
-		//move
-		// if(!shipSlowingDown){
-		// 	AddMainForce(forward);
-		// 	TurningForce();
-		// }
+	//STEER	
+	protected void SteerRight(){            
+		RudderBladeRotation_Y = rudderBladeTransform.localEulerAngles.y - rotationRudderBlade *Time.deltaTime;
 
-		//float
-		Float();
-
-		//Anchor
-		if(anchorDown){
-			m_shipRB.velocity = Vector3.zero;
-		}else{
-			AddMainForce(forward);
-			TurningForce();
+		if (RudderBladeRotation_Y < 360-rotationAngle && RudderBladeRotation_Y > 90f)
+		{
+			RudderBladeRotation_Y = 360-rotationAngle;
+			RudderRotation_Z = 0;
 		}
+		else{
+			RudderRotation_Z = rudderTransform.localEulerAngles.z - (rotationRudderBlade *Time.deltaTime* (360/rotationAngle));
+		}
+
+		Vector3 newRotationRudderBlade = new Vector3(0f, RudderBladeRotation_Y, 0f);
+		Vector3 newRotationRudder = new Vector3(0f, 0f, RudderRotation_Z);
+
+		rudderBladeTransform.localEulerAngles = newRotationRudderBlade;
+		FrontTransform.localEulerAngles = -newRotationRudderBlade;
+		rudderTransform.localEulerAngles = newRotationRudder;
 	}
 
-	//INPUT 
-    void UserInput()
-    {
-        //Forward / reverse
-		if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-			OrderSailsUp();
-        }		
-		if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-			OrderSailsDown();
-        }
+	protected void SteerLeft(){            
+		RudderBladeRotation_Y = rudderBladeTransform.localEulerAngles.y + rotationRudderBlade *Time.deltaTime;
 
-		float m_inputH = Input.GetAxisRaw("Horizontal");
+		if (RudderBladeRotation_Y > rotationAngle && RudderBladeRotation_Y < 270f)
+		{
+			RudderBladeRotation_Y = rotationAngle;
+			RudderRotation_Z = 0;
+		}
+		else{
+			RudderRotation_Z = rudderTransform.localEulerAngles.z + (rotationRudderBlade *Time.deltaTime* (360/rotationAngle));
+		}
 
-        //Steer left
-        if (Input.GetKey(KeyCode.LeftArrow) || (m_inputH < 0 && rudderInteractZone.isZoneActive()))
-        {
-            RudderBladeRotation_Y = rudderBladeTransform.localEulerAngles.y + rotationRudderBlade;
+		Vector3 newRotationRudderBlade = new Vector3(0f, RudderBladeRotation_Y, 0f);
+		Vector3 newRotationRudder = new Vector3(0f, 0f, RudderRotation_Z);
 
-            if (RudderBladeRotation_Y > rotationAngle && RudderBladeRotation_Y < 270f)
-            {
-                RudderBladeRotation_Y = rotationAngle;
-                RudderRotation_Z = 0;
-            }
-			else{
-				RudderRotation_Z = rudderTransform.localEulerAngles.z + (rotationRudderBlade * (360/rotationAngle));
-			}
+		rudderBladeTransform.localEulerAngles = newRotationRudderBlade;
+		FrontTransform.localEulerAngles = - newRotationRudderBlade;
+		rudderTransform.localEulerAngles = newRotationRudder;
+	}
 
-            Vector3 newRotationRudderBlade = new Vector3(0f, RudderBladeRotation_Y, 0f);
-            Vector3 newRotationRudder = new Vector3(0f, 0f, RudderRotation_Z);
-
-            rudderBladeTransform.localEulerAngles = newRotationRudderBlade;
-			FrontTransform.localEulerAngles = - newRotationRudderBlade;
-			rudderTransform.localEulerAngles = newRotationRudder;
-        }
-
-        //Steer right
-        else if (Input.GetKey(KeyCode.RightArrow) || (m_inputH > 0 && rudderInteractZone.isZoneActive()))
-        {
-            RudderBladeRotation_Y = rudderBladeTransform.localEulerAngles.y - rotationRudderBlade;
-
-            if (RudderBladeRotation_Y < 360-rotationAngle && RudderBladeRotation_Y > 90f)
-            {
-                RudderBladeRotation_Y = 360-rotationAngle;
-				RudderRotation_Z = 0;
-            }
-			else{
-				RudderRotation_Z = rudderTransform.localEulerAngles.z - (rotationRudderBlade * (360/rotationAngle));
-			}
-
-            Vector3 newRotationRudderBlade = new Vector3(0f, RudderBladeRotation_Y, 0f);
-            Vector3 newRotationRudder = new Vector3(0f, 0f, RudderRotation_Z);
-
-            rudderBladeTransform.localEulerAngles = newRotationRudderBlade;
-			FrontTransform.localEulerAngles = -newRotationRudderBlade;
-			rudderTransform.localEulerAngles = newRotationRudder;
-        }
-    }
+	protected void SetRotationRudder(float angle){
+		rudderBladeTransform.localEulerAngles = new Vector3(0f, angle, 0f);
+		RudderBladeRotation_Y = angle;
+	}
 
 	//SAILS
-
 	public bool OrderSailsUp(){
 		if (m_sailsSate != SailsState.sailsZeroPerCent && !sailsGoingUp)
         {
@@ -231,11 +171,11 @@ public class FloatingShip : MonoBehaviour {
 		return false;
 	}
 
-	private void SailsStateUpdate()
+	protected void SailsStateUpdate()
 	{
 		if(m_sailsSate != m_sailsStateOLD)
 		{
-
+			//print("change sails state");
 			switch (m_sailsSate)
 			{
 			case SailsState.sailsZeroPerCent:
@@ -274,7 +214,7 @@ public class FloatingShip : MonoBehaviour {
 			m_sailsStateOLD = m_sailsSate;
 		}
 	}
-	IEnumerator SailsUp(){
+	protected IEnumerator SailsUp(){
 		sailsGoingUp = true;
 		//m_sailsSate--;
 		float MinScale;
@@ -303,7 +243,7 @@ public class FloatingShip : MonoBehaviour {
 		sailsGoingUp = false;
 	}
 
-	IEnumerator SailsDown(){
+	protected IEnumerator SailsDown(){
 		SailsGoingDown = true;
 		//m_sailsSate++;
 		float MaxScale;
@@ -332,37 +272,9 @@ public class FloatingShip : MonoBehaviour {
 		SailsGoingDown = false;
 	}
 
-	//CANONS
 
-	public bool ReloadCanonLeft(){
-
-		foreach (Transform child in m_canonsleft)
-		{
-			if(child.GetComponent<Shoot_Canon>() && child.gameObject.activeSelf){
-				if(child.GetComponent<Shoot_Canon>().isLoaded){
-					return false;
-				}
-				child.GetComponent<Shoot_Canon>().CanonReload(ActiveCannonsLeft);
-			}
-		}
-		return true;
-	}
-
-	public bool ReloadCanonRight(){
-
-		foreach (Transform child in m_canonsRight)
-		{
-			if(child.GetComponent<Shoot_Canon>() && child.gameObject.activeSelf){
-				if(child.GetComponent<Shoot_Canon>().isLoaded){
-					return false;
-				}
-				child.GetComponent<Shoot_Canon>().CanonReload(ActiveCannonsRight);
-			}
-		}
-		return true;
-	}
 	//MOVEMENT
-	void AddMainForce(float maxSpeed)
+	protected void AddMainForce(float maxSpeed)
 	{
 		if(m_currentforwardSpeed < maxSpeed && !shipSlowingDown)
 		{
@@ -379,10 +291,10 @@ public class FloatingShip : MonoBehaviour {
 
 		m_shipRB.AddForceAtPosition(mainForce, m_CenterOfMass.position, m_force);
 		//
-        Debug.DrawRay(m_CenterOfMass.position, mainForce, Color.red);
+        Debug.DrawRay(transform.position, m_shipVelocity*10, Color.green);
 	}
 
-    void TurningForce()
+    protected void TurningForce()
     {
         Vector3 turningForceTemp;
 		switch (m_sailsSate)
@@ -401,42 +313,41 @@ public class FloatingShip : MonoBehaviour {
 			break;
 		}
 
-		if((RudderBladeRotation_Y > 5 && RudderBladeRotation_Y < 355) && !anchorDown)
+		float RudderBladeRotNormalized= (RudderBladeRotation_Y > 180) ? RudderBladeRotation_Y - 360 : RudderBladeRotation_Y;
+		if((RudderBladeRotNormalized > 5 || RudderBladeRotNormalized < -5) && !anchorDown)
 		{
 			m_shipRB.AddForceAtPosition(-turningForceTemp*0.75f, FrontTransform.position, m_force);
-        	Debug.DrawRay(FrontTransform.position, turningForceTemp, Color.red);
+        	Debug.DrawRay(FrontTransform.position, -turningForceTemp*10, Color.green);
 			//
 			m_shipRB.AddForceAtPosition(turningForceTemp, rudderBladeTransform.position, m_force);
-        	Debug.DrawRay(rudderBladeTransform.position, turningForceTemp, Color.red);
+        	Debug.DrawRay(rudderBladeTransform.position, turningForceTemp*10, Color.green);
 		}
     }
 
 	//FLOAT
-	void ApplyFloatingForce(Buoy point, float coef)
+	protected void ApplyFloatingForce(Buoy point, float coef)
 	{
 		Vector3 FloatingForce = point.direction * coef * m_floatingCoef;
 		m_shipRB.AddForceAtPosition(FloatingForce, point.transform.position, m_force);
-		Debug.DrawRay(point.transform.position, FloatingForce, Color.red,0.5f);
+		Debug.DrawRay(point.transform.position, FloatingForce, Color.blue,0.1f);
 	}	
 	
-	void ApplyGravityForce(Buoy point, float coef)
+	protected void ApplyGravityForce(Buoy point, float coef)
 	{
 		Vector3 FloatingForce = -point.direction * coef * m_floatingCoef;
 		m_shipRB.AddForceAtPosition(FloatingForce, point.transform.position, m_force);
-		Debug.DrawRay(point.transform.position, FloatingForce, Color.yellow,0.5f);
+		//Debug.DrawRay(point.transform.position, FloatingForce, Color.yellow,0.5f);
 	}
 
-	void Float()
+	protected void Float()
 	{
 		foreach (Buoy point in m_buoy)
 		{
-			//*
-			//print(point.transform.name + " :  x: " + point.transform.position.x + "  y: " + point.transform.position.y);
-			m_waterLevel = m_ocean.GetWaterHeightAtLocation(point.transform.position.x, point.transform.position.y);
-			/*/
-			m_waterLevel = -3;
-			//m_waterLevel = WaterController.current.GetWaveYPos(point.position, Time.time);
-			//*/
+			if(useOcean && m_ocean.gameObject.activeSelf){
+				m_waterLevel = m_ocean.GetWaterHeightAtLocation(point.transform.position.x, point.transform.position.y);
+			}else{
+				m_waterLevel = -3;
+			}
 
 			if(point.transform.position.y < m_waterLevel){
 				float diff = m_waterLevel - point.transform.position.y;
@@ -465,7 +376,7 @@ public class FloatingShip : MonoBehaviour {
 	}
 
 	//OTHER
-	void AddImpulseAtFloatingPoint(int index, Vector3 direction, float magnitude, ForceMode force){
+	protected void AddImpulseAtFloatingPoint(int index, Vector3 direction, float magnitude, ForceMode force){
 		m_shipRB.AddForceAtPosition(direction*magnitude, m_buoy[index].transform.position, ForceMode.VelocityChange);
 	}
 	
@@ -484,7 +395,7 @@ public class FloatingShip : MonoBehaviour {
 		}
 	}
 
-	IEnumerator SlowDownShip(){
+	protected IEnumerator SlowDownShip(){
 		shipSlowingDown = true;
 		while(m_shipRB.velocity.z > 1){
 			m_shipRB.velocity -= new Vector3(0,0,m_brakeForce);
@@ -496,14 +407,14 @@ public class FloatingShip : MonoBehaviour {
 		anchorDown = true;
 		shipSlowingDown = false;
 		m_shipRB.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
-		print("ship stopped");
+		//print("ship stopped");
 	}
 
 	//DEBUG
-	void OnDrawGizmos()
+	protected void OnDrawGizmos()
 	{
 		//Buoy
-		Gizmos.color = Color.green;
+		Gizmos.color = Color.white;
 		foreach (Buoy point in m_buoy)
 		{
 			Gizmos.DrawWireSphere(point.transform.position, 1);
