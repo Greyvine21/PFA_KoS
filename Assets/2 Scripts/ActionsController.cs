@@ -98,12 +98,12 @@ public class ActionsController : MonoBehaviour {
         if(isLeft){
             //m_ship.m_canonsLeft.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
             m_Canons.ShootCanon(m_Canons.m_canonsLeft);
-            m_Canons.ReloadCanon(m_Canons.m_canonsLeft, m_Canons.ActiveCannonsLeft);
+            m_Canons.ReloadCanon(m_Canons.m_canonsLeft);
         }
         else{
             //m_ship.m_canonsRight.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
             m_Canons.ShootCanon(m_Canons.m_canonsRight);
-            m_Canons.ReloadCanon(m_Canons.m_canonsRight, m_Canons.ActiveCannonsRight);
+            m_Canons.ReloadCanon(m_Canons.m_canonsRight);
         }
 
         yield return new WaitForSeconds(m_ShootDelay);

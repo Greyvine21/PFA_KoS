@@ -31,27 +31,27 @@ public class CanonManager : MonoBehaviour {
     [SerializeField] public float rangeAngleX = 60;
     [SerializeField] public float offsetX = 0;
 
-	[HideInInspector] public int ActiveCannonsRight, ActiveCannonsLeft;
+	//[HideInInspector] public int ActiveCannonsRight, ActiveCannonsLeft;
 
 
-	void Start()
-	{		
-		ActiveCannonsRight = 0;
-		foreach (Transform child in m_canonsRight)
-		{
-			if(child.gameObject.activeSelf){
-				ActiveCannonsRight ++;
-			}
-		}
+	// void Start()
+	// {		
+	// 	ActiveCannonsRight = 0;
+	// 	foreach (Transform child in m_canonsRight)
+	// 	{
+	// 		if(child.gameObject.activeSelf){
+	// 			ActiveCannonsRight ++;
+	// 		}
+	// 	}
 		
-		ActiveCannonsLeft = 0;
-		foreach (Transform child in m_canonsLeft)
-		{
-			if(child.gameObject.activeSelf){
-				ActiveCannonsLeft ++;
-			}
-		}
-	}
+	// 	ActiveCannonsLeft = 0;
+	// 	foreach (Transform child in m_canonsLeft)
+	// 	{
+	// 		if(child.gameObject.activeSelf){
+	// 			ActiveCannonsLeft ++;
+	// 		}
+	// 	}
+	// }
 
 	//shoot
 	public bool ShootCanon(Transform m_canonSide){
@@ -70,7 +70,7 @@ public class CanonManager : MonoBehaviour {
 	}
 
 	//reload
-	public bool ReloadCanon(Transform m_canonSide, int nbCanons){
+	public bool ReloadCanon(Transform m_canonSide){
 
 		foreach (Transform child in m_canonSide)
 		{
@@ -78,7 +78,7 @@ public class CanonManager : MonoBehaviour {
 				if(child.GetComponent<Canon>().isLoaded){
 					return false;
 				}
-				child.GetComponent<Canon>().CanonReload(nbCanons);
+				child.GetComponent<Canon>().CanonReload();
 			}
 		}
 		return true;
