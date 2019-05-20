@@ -36,6 +36,7 @@ public class Canon : MonoBehaviour {
 
 	private bool isReloading;
 	private CanonManager m_Manager;
+	private int m_nbCannons;
 	private AudioSource m_source;
     private float CanonRotation_X = 0f;
     private float CanonRotation_Y = 0f;
@@ -56,6 +57,13 @@ public class Canon : MonoBehaviour {
 			isLoaded = false;
 			if(m_UIBar != null)
 				m_UIBar.transform.localScale = new Vector3(0,1,1);
+		}
+
+		foreach (Transform child in transform.parent)
+		{
+			if(child.gameObject.activeSelf){
+				m_nbCannons ++;
+			}
 		}
 	}
 
@@ -200,19 +208,19 @@ public class Canon : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//SHOOT
 
-	public void CanonReload(int nbCannons){
+	public void CanonReload(){
 		if(!isReloading && !isLoaded)
-			StartCoroutine("ReloadCor", nbCannons);
+			StartCoroutine("ReloadCor");
 	}
 
 
-	private IEnumerator ReloadCor(int nbCannons){
+	private IEnumerator ReloadCor(){
 		isReloading = true;
 
 		m_UIBar.transform.localScale = new Vector3(0,1,1);
 		while(m_UIBar.transform.localScale.x < 1){
 			m_UIBar.transform.localScale += new Vector3(0.01f,0,0);
-			yield return new WaitForSeconds(1/(m_Manager.reloadSpeed/nbCannons));
+			yield return new WaitForSeconds(1/(m_Manager.reloadSpeed/m_nbCannons));
 		}
 
 		m_UIBar.transform.localScale = new Vector3(1,1,1);

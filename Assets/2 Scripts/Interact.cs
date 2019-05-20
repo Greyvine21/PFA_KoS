@@ -17,7 +17,8 @@ public class Interact : MonoBehaviour {
 	void Start()
 	{
 		anim = GetComponent<Animator>();
-		m_textZone.text = ": " + m_text;
+		if(m_textZone != null)
+			m_textZone.text = ": " + m_text;
 	}
 
 	public bool isZoneActive(){

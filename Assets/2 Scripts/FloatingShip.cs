@@ -291,7 +291,7 @@ public class FloatingShip : MonoBehaviour {
 
 		m_shipRB.AddForceAtPosition(mainForce, m_CenterOfMass.position, m_force);
 		//
-        Debug.DrawRay(transform.position, m_shipVelocity*10, Color.green);
+        //Debug.DrawRay(transform.position, m_shipVelocity*10, Color.green);
 	}
 
     protected void TurningForce()
@@ -317,10 +317,10 @@ public class FloatingShip : MonoBehaviour {
 		if((RudderBladeRotNormalized > 5 || RudderBladeRotNormalized < -5) && !anchorDown)
 		{
 			m_shipRB.AddForceAtPosition(-turningForceTemp*0.75f, FrontTransform.position, m_force);
-        	Debug.DrawRay(FrontTransform.position, -turningForceTemp*10, Color.green);
+        	//Debug.DrawRay(FrontTransform.position, -turningForceTemp*10, Color.green);
 			//
 			m_shipRB.AddForceAtPosition(turningForceTemp, rudderBladeTransform.position, m_force);
-        	Debug.DrawRay(rudderBladeTransform.position, turningForceTemp*10, Color.green);
+        	//Debug.DrawRay(rudderBladeTransform.position, turningForceTemp*10, Color.green);
 		}
     }
 
@@ -329,7 +329,7 @@ public class FloatingShip : MonoBehaviour {
 	{
 		Vector3 FloatingForce = point.direction * coef * m_floatingCoef;
 		m_shipRB.AddForceAtPosition(FloatingForce, point.transform.position, m_force);
-		Debug.DrawRay(point.transform.position, FloatingForce, Color.blue,0.1f);
+		//Debug.DrawRay(point.transform.position, FloatingForce, Color.blue,0.1f);
 	}	
 	
 	protected void ApplyGravityForce(Buoy point, float coef)
