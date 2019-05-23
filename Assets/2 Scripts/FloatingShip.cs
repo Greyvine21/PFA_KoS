@@ -17,6 +17,7 @@ public enum SailsState{
 
 public class FloatingShip : MonoBehaviour {
 
+	#region Fields
 	[Header("References")]
 	[SerializeField] protected Transform m_CenterOfMass;
 	[SerializeField] protected Ocean m_ocean;
@@ -41,19 +42,11 @@ public class FloatingShip : MonoBehaviour {
 	[Header("Sails")]
 	[SerializeField] public SailsState m_sailsSate = SailsState.sailsZeroPerCent;
 	[SerializeField] protected float m_MaxForwardSpeed;
+	[SerializeField] protected float m_externalSpeedMultiplier = 1;
 	[SerializeField] protected float m_forwardAcceleration;
 	[SerializeField] protected Transform[] m_sails;
 	[SerializeField] protected float m_sailsUpSpeed;
 	[SerializeField] protected float m_sailsDownSpeed;
-
-	// [Header("Canons")]
-	// [SerializeField] public Transform m_canonsRight;
-	// [SerializeField] public Transform m_canonsLeft;
-    // [SerializeField] public float m_bulletSpeed;
-    // [SerializeField] public float m_ForceCanonMultiplier;
-    // [SerializeField] public GameObject m_canonBall;
-    // [SerializeField] public float reloadSpeed;
-    // [SerializeField] public AudioClip[] CanonsClips;
 
 	[Header("Brake")]
 	[SerializeField] protected float m_brakeImpulse = 30;
@@ -64,26 +57,21 @@ public class FloatingShip : MonoBehaviour {
 	[SerializeField] protected float m_currentforwardSpeed;
 	[SerializeField] protected float m_waterLevel;
 	[SerializeField] public Vector3 m_shipVelocity;
+	#endregion Fields
 
-	//private float forward0, forward50, forward100;
+	#region Privates
 	protected float forward;
 	protected bool sailsGoingUp, SailsGoingDown;
-	//private bool isRudderActive = false;
 	protected bool shipSlowingDown = false;
 	protected SailsState m_sailsStateOLD;
     protected float RudderBladeRotation_Y = 0f;
     protected float RudderRotation_Z = 0f;
 	public Rigidbody m_shipRB;
-
+	#endregion Privates
 
 	protected void Start()
 	{
 		m_shipRB = GetComponent<Rigidbody>();
-		//m_shipRB.centerOfMass = m_CenterOfMass.position;
-
-		/*forward100 = m_MaxForwardSpeed;
-		forward50 = m_MaxForwardSpeed/2;
-		forward0 = m_MaxForwardSpeed/10;*/
 
 		foreach (Transform sail in m_sails)
 		{
@@ -105,8 +93,8 @@ public class FloatingShip : MonoBehaviour {
 		}
 	}
 
-
 	//STEER	
+	#region Steer
 	protected void SteerRight(){            
 		RudderBladeRotation_Y = rudderBladeTransform.localEulerAngles.y - rotationRudderBlade *Time.deltaTime;
 
@@ -151,8 +139,10 @@ public class FloatingShip : MonoBehaviour {
 		rudderBladeTransform.localEulerAngles = new Vector3(0f, angle, 0f);
 		RudderBladeRotation_Y = angle;
 	}
+	#endregion Steer
 
 	//SAILS
+	#region Sails
 	public bool OrderSailsUp(){
 		if (m_sailsSate != SailsState.sailsZeroPerCent && !sailsGoingUp)
         {
@@ -216,7 +206,7 @@ public class FloatingShip : MonoBehaviour {
 	}
 	protected IEnumerator SailsUp(){
 		sailsGoingUp = true;
-		//m_sailsSate--;
+		
 		float MinScale;
 		switch (m_sailsSate)
 		{
@@ -240,12 +230,17 @@ public class FloatingShip : MonoBehaviour {
 			}
 		}
 		
+		// foreach (Transform sail in m_sails)
+		// {
+		// 	sail.localScale = new Vector3(0, MinScale ,0);
+		// }
+
 		sailsGoingUp = false;
 	}
 
 	protected IEnumerator SailsDown(){
 		SailsGoingDown = true;
-		//m_sailsSate++;
+		
 		float MaxScale;
 		switch (m_sailsSate)
 		{
@@ -269,18 +264,24 @@ public class FloatingShip : MonoBehaviour {
 			}
 		}
 		
+		// foreach (Transform sail in m_sails)
+		// {
+		// 	sail.localScale = new Vector3(0, MaxScale ,0);
+		// }
+
 		SailsGoingDown = false;
 	}
+	#endregion Sails
 
-
-	//MOVEMENT
+	//FORCES
+	#region Forces
 	protected void AddMainForce(float maxSpeed)
 	{
-		if(m_currentforwardSpeed < maxSpeed && !shipSlowingDown)
+		if(m_currentforwardSpeed < maxSpeed*m_externalSpeedMultiplier && !shipSlowingDown)
 		{
 			m_currentforwardSpeed += m_forwardAcceleration;
 		}		
-		else if(m_currentforwardSpeed > maxSpeed || shipSlowingDown)
+		else if(m_currentforwardSpeed > maxSpeed*m_externalSpeedMultiplier || shipSlowingDown)
 		{
 			m_currentforwardSpeed -= m_forwardAcceleration*10;
 		}
@@ -291,7 +292,7 @@ public class FloatingShip : MonoBehaviour {
 
 		m_shipRB.AddForceAtPosition(mainForce, m_CenterOfMass.position, m_force);
 		//
-        //Debug.DrawRay(transform.position, m_shipVelocity*10, Color.green);
+        Debug.DrawRay(transform.position, m_shipVelocity*10, Color.green);
 	}
 
     protected void TurningForce()
@@ -317,10 +318,10 @@ public class FloatingShip : MonoBehaviour {
 		if((RudderBladeRotNormalized > 5 || RudderBladeRotNormalized < -5) && !anchorDown)
 		{
 			m_shipRB.AddForceAtPosition(-turningForceTemp*0.75f, FrontTransform.position, m_force);
-        	//Debug.DrawRay(FrontTransform.position, -turningForceTemp*10, Color.green);
+        	Debug.DrawRay(FrontTransform.position, -turningForceTemp*10, Color.green);
 			//
 			m_shipRB.AddForceAtPosition(turningForceTemp, rudderBladeTransform.position, m_force);
-        	//Debug.DrawRay(rudderBladeTransform.position, turningForceTemp*10, Color.green);
+        	Debug.DrawRay(rudderBladeTransform.position, turningForceTemp*10, Color.green);
 		}
     }
 
@@ -329,7 +330,7 @@ public class FloatingShip : MonoBehaviour {
 	{
 		Vector3 FloatingForce = point.direction * coef * m_floatingCoef;
 		m_shipRB.AddForceAtPosition(FloatingForce, point.transform.position, m_force);
-		//Debug.DrawRay(point.transform.position, FloatingForce, Color.blue,0.1f);
+		Debug.DrawRay(point.transform.position, FloatingForce, Color.red,0.1f);
 	}	
 	
 	protected void ApplyGravityForce(Buoy point, float coef)
@@ -374,13 +375,15 @@ public class FloatingShip : MonoBehaviour {
 			m_shipRB.velocity = Vector3.ClampMagnitude(m_shipRB.velocity, m_maxVelocity);
 		}*/
 	}
-
-	//OTHER
+	
+	//impulse
 	protected void AddImpulseAtFloatingPoint(int index, Vector3 direction, float magnitude, ForceMode force){
 		m_shipRB.AddForceAtPosition(direction*magnitude, m_buoy[index].transform.position, ForceMode.VelocityChange);
 	}
-	
-	//ANCHOR/BRAKE
+	#endregion Forces
+
+	//ANCHOR
+	#region Anchor
 	public bool Anchor(){
 		if(shipSlowingDown){
 			return false;
@@ -409,7 +412,9 @@ public class FloatingShip : MonoBehaviour {
 		m_shipRB.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
 		//print("ship stopped");
 	}
-
+	#endregion Anchor
+	
+	
 	//DEBUG
 	protected void OnDrawGizmos()
 	{
