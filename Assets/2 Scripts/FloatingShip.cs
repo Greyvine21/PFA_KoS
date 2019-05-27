@@ -18,6 +18,7 @@ public enum SailsState{
 public class FloatingShip : MonoBehaviour {
 
 	#region Fields
+	public bool b;
 	[Header("References")]
 	[SerializeField] protected Transform m_CenterOfMass;
 	[SerializeField] protected Ocean m_ocean;
@@ -72,6 +73,7 @@ public class FloatingShip : MonoBehaviour {
 	protected void Start()
 	{
 		m_shipRB = GetComponent<Rigidbody>();
+		//m_shipRB.centerOfMass = m_CenterOfMass.position - transform.position;
 
 		foreach (Transform sail in m_sails)
 		{
@@ -317,7 +319,7 @@ public class FloatingShip : MonoBehaviour {
 		float RudderBladeRotNormalized= (RudderBladeRotation_Y > 180) ? RudderBladeRotation_Y - 360 : RudderBladeRotation_Y;
 		if((RudderBladeRotNormalized > 5 || RudderBladeRotNormalized < -5) && !anchorDown)
 		{
-			m_shipRB.AddForceAtPosition(-turningForceTemp*0.75f, FrontTransform.position, m_force);
+			m_shipRB.AddForceAtPosition(-turningForceTemp*0.5f, FrontTransform.position, m_force);
         	Debug.DrawRay(FrontTransform.position, -turningForceTemp*10, Color.green);
 			//
 			m_shipRB.AddForceAtPosition(turningForceTemp, rudderBladeTransform.position, m_force);
@@ -342,6 +344,7 @@ public class FloatingShip : MonoBehaviour {
 
 	protected void Float()
 	{
+
 		foreach (Buoy point in m_buoy)
 		{
 			if(useOcean && m_ocean.gameObject.activeSelf){
@@ -427,6 +430,9 @@ public class FloatingShip : MonoBehaviour {
 			//Gizmos.DrawLine(point.transform.position, tmp);
 		}
 		
+		Gizmos.color = Color.magenta;
+		if(m_shipRB && b)
+			Gizmos.DrawWireSphere(m_shipRB.centerOfMass, 0.5f);
 
 		//Height
 		//Gizmos.color = Color.white;

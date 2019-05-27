@@ -41,9 +41,6 @@ public class Bullet : MonoBehaviour {
 				}
 			}
 		}
-		// if(m_targetTag.Contains(other.GetComponentInParent<EnnemyHumanBehaviour>().gameObject.tag)){
-
-		// }
 
 		Destroy(gameObject);
 	}
