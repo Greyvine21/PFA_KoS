@@ -22,7 +22,7 @@ public class RaycastManager : MonoBehaviour {
 
 		if(Physics.Raycast(transform.position + (transform.forward*1), transform.forward, out hitInfo, RaycastMaxDistance, m_raycastLayers, QueryTriggerInteraction.Collide)){
 			isSelecting = true;
-			m_hitPoint.position = hitInfo.point;
+			//m_hitPoint.position = hitInfo.point;
 			objectSelected = hitInfo.collider.gameObject.name;
 			TagSelected = hitInfo.collider.gameObject.tag;
 		}

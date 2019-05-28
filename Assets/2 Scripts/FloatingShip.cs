@@ -347,29 +347,32 @@ public class FloatingShip : MonoBehaviour {
 
 		foreach (Buoy point in m_buoy)
 		{
-			if(useOcean && m_ocean.gameObject.activeSelf){
-				m_waterLevel = m_ocean.GetWaterHeightAtLocation(point.transform.position.x, point.transform.position.y);
-			}else{
-				m_waterLevel = -3;
-			}
-
-			if(point.transform.position.y < m_waterLevel){
-				float diff = m_waterLevel - point.transform.position.y;
-				//print(point.name + " diff = "+ diff);
-				if(Mathf.Abs(diff) > m_maxFloating)
-					ApplyFloatingForce(point, m_maxFloating);
-				else
-					ApplyFloatingForce(point, Mathf.Abs(diff));
-			}
-			else{
-				if(point.applyGravityForce){
-					float diff = point.transform.position.y - m_waterLevel;
-					//print(point.name + " diff = "+ diff);
-					if(Mathf.Abs(diff)  > m_maxFloating)
-						ApplyGravityForce(point, m_maxFloating/1);
-					else
-						ApplyGravityForce(point, Mathf.Abs(diff/1) );
+			if(point.transform.gameObject.activeSelf){
+				if(useOcean && m_ocean.gameObject.activeSelf){
+					m_waterLevel = m_ocean.GetWaterHeightAtLocation(point.transform.position.x, point.transform.position.y);
+				}else{
+					m_waterLevel = -3;
 				}
+
+				if(point.transform.position.y < m_waterLevel){
+					float diff = m_waterLevel - point.transform.position.y;
+					//print(point.name + " diff = "+ diff);
+					if(Mathf.Abs(diff) > m_maxFloating)
+						ApplyFloatingForce(point, m_maxFloating);
+					else
+						ApplyFloatingForce(point, Mathf.Abs(diff));
+				}
+				else{
+					if(point.applyGravityForce){
+						float diff = point.transform.position.y - m_waterLevel;
+						//print(point.name + " diff = "+ diff);
+						if(Mathf.Abs(diff)  > m_maxFloating)
+							ApplyGravityForce(point, m_maxFloating/1);
+						else
+							ApplyGravityForce(point, Mathf.Abs(diff/1) );
+					}
+				}
+
 			}
 		}
 		m_shipVelocity = m_shipRB.velocity;
@@ -377,6 +380,26 @@ public class FloatingShip : MonoBehaviour {
 		/*if(m_shipMagnitude > m_maxVelocity){
 			m_shipRB.velocity = Vector3.ClampMagnitude(m_shipRB.velocity, m_maxVelocity);
 		}*/
+	}
+
+	protected IEnumerator Sink(){
+		
+		m_shipRB.drag *= 3;
+		m_shipRB.angularDrag *= 3;
+		m_buoy[1].transform.gameObject.SetActive(false);
+
+		yield return new WaitForSeconds(2);
+
+		m_buoy[2].transform.gameObject.SetActive(false);
+		m_buoy[3].transform.gameObject.SetActive(false);
+		m_buoy[4].transform.gameObject.SetActive(false);
+		m_buoy[5].transform.gameObject.SetActive(false);
+
+		yield return new WaitForSeconds(10);
+
+		m_shipRB.velocity = Vector3.zero;
+		m_shipRB.useGravity = false;
+		m_shipRB.constraints = RigidbodyConstraints.FreezeAll;
 	}
 	
 	//impulse
@@ -422,9 +445,14 @@ public class FloatingShip : MonoBehaviour {
 	protected void OnDrawGizmos()
 	{
 		//Buoy
-		Gizmos.color = Color.white;
 		foreach (Buoy point in m_buoy)
 		{
+			if(point.transform.gameObject.activeSelf){
+				Gizmos.color = Color.white;
+			}
+			else{
+				Gizmos.color = Color.gray;
+			}
 			Gizmos.DrawWireSphere(point.transform.position, 1);
 			//Vector3 tmp = new Vector3(point.transform.position.x, m_waterLevel ,point.transform.position.z);
 			//Gizmos.DrawLine(point.transform.position, tmp);

@@ -19,6 +19,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 	public Transform m_visorRight;
 
 	[Header("IA monitoring")]
+	public bool isDefeated;
 	public bool PlayerInRange;
 	public bool ObstacleDetected;
 	public float distanceFromTarget;
@@ -289,6 +290,14 @@ public class EnnemyShipBehaviour : FloatingShip {
 		}
 	}
 
+	public void Defeat(){
+		if(!isDefeated){
+			isDefeated = true;
+			canMove = false;
+			canShoot = false;
+			StartCoroutine("Sink");
+		}
+	}
 
 	// new void OnDrawGizmos()
 	// {

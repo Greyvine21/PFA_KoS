@@ -174,14 +174,14 @@ public class BoatAgent : MonoBehaviour {
 		NavMeshHit hit;
 		if (!NavMesh.SamplePosition(nextPos, out hit, 1.0f, NavMesh.AllAreas))
         {
-			print("Not On navmesh");
+			//print("Not On navmesh");
 			m_isCheckingNavmesh = true;
 			m_checkObstacleNavmesh += 20;
 			//nextPos += transform.position + m_targetPlayer.m_shipRB.velocity.normalized*20;
     	}
 		else
 		{
-			print("OK");
+			//print("OK");
 			m_isCheckingNavmesh = false;
 			m_checkObstacleNavmesh = 100;
 			m_agent.SetDestination(nextPos);
