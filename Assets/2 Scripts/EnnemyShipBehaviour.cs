@@ -40,7 +40,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 	{
 		base.Start();
 		//
-		m_canonsManager = GetComponent<CanonManager>();
+		m_canonsManager = GetComponentInChildren<CanonManager>();
 		//
 		m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
 		m_TargetShip = m_Target.GetComponent<PlayerShipBehaviour>();

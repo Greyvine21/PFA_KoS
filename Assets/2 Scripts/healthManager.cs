@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/*public enum ImpactType
+{
+	Navigation = 0,
+	Cannons,
+	Sails
+}*/
+
 [System.Serializable]
 public struct LifeElem
 {
@@ -17,11 +24,13 @@ public class healthManager : MonoBehaviour {
 
 	[Header("Impact zones")]
     [Range(0,100)] public int m_impactPercentage;
+    public int m_ImpactCooldown = 10;
 
     //public GameObject[] m_impactHull;
-    public GameObject[] m_impactNavigation;
-    public GameObject[] m_impactBridge;
-    public GameObject[] m_impactSails;
+    public ImpactZone m_impactNavigation;
+    public ImpactZone m_impactBridge;
+    public ImpactZone m_impactSails;
+    public int m_nbImpact;
 
     // public Slider m_lifebar;
     // public float life = 100;
@@ -34,6 +43,8 @@ public class healthManager : MonoBehaviour {
 
 	void Start()
 	{
+        m_nbImpact = 0;
+        //
         for (int i = 0; i < m_lifebars.Length; i++)
         {
             m_lifebars[i].lifebar.maxValue = m_lifebars[i].MaxlifePoints;
@@ -52,15 +63,27 @@ public class healthManager : MonoBehaviour {
             if(index == 0){
                 if(GetComponent<EnnemyShipBehaviour>())
                     GetComponent<EnnemyShipBehaviour>().Defeat();
-                else if(GetComponent<PlayerShipBehaviour>()){
+                else if(GetComponentInParent<PlayerShipBehaviour>()){
                     m_lifebars[index].lifePoints = m_lifebars[index].MaxlifePoints;
                     //print("Defeat");
                 }
             }
         }
 
+        refreshUIBar(index);
+    }
 
-        //
+    public void IncreaseLife(int index, int value){
+        m_lifebars[index].lifePoints += value;
+
+        if(m_lifebars[index].lifePoints > m_lifebars[index].MaxlifePoints){
+            m_lifebars[index].lifePoints = m_lifebars[index].MaxlifePoints;
+        }
+
+        refreshUIBar(index);
+    }
+
+    private void refreshUIBar(int index){
         m_lifebars[index].lifebar.value = m_lifebars[index].lifePoints;
 
         if(m_lifebars[index].lifePoints <=  25f/100f * m_lifebars[index].MaxlifePoints){
@@ -76,20 +99,24 @@ public class healthManager : MonoBehaviour {
             m_lifebars[index].ColorBar.color = Green;
         }
     }
-
-    public void SpawnImpact(GameObject[] Impacts){
+    public void SpawnImpact(ImpactZone impactZone){
         
-        if(Random.Range(0, 100) <= m_impactPercentage){
-            List<GameObject> unactiveImpacts = new List<GameObject>();
-            foreach (GameObject impact in Impacts)
+        if(Random.Range(0, 101) <= m_impactPercentage){
+            List<Impact> unactiveImpacts = new List<Impact>();
+            foreach (Impact impact in impactZone.zone)
             {
-                if(!impact.activeSelf)
-                    unactiveImpacts.Add(impact);
+                if(!impact.isActive)
+                    unactiveImpacts.Add(impact.GetComponent<Impact>());
             }
 
-            print("impact count : " + unactiveImpacts.Count);
-            if(unactiveImpacts.Count > 0)
-                unactiveImpacts[Random.Range(0, unactiveImpacts.Count)].SetActive(true);
+            //print("impact count : " + unactiveImpacts.Count);
+            if(unactiveImpacts.Count > 0){
+                m_nbImpact ++;
+                if(unactiveImpacts[Random.Range(0, unactiveImpacts.Count)].ActiveImpact()){
+                    impactZone.activeImpactNb ++;
+                    impactZone.AddImpactUI();
+                }
+            }
         }
     }
 

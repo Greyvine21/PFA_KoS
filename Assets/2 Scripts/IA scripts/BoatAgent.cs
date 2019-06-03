@@ -14,6 +14,7 @@ public class BoatAgent : MonoBehaviour {
 
 	public EnnemyShipBehaviour m_EnnemyShip;
 	public Transform m_targetTemp;
+	public bool m_Gizmo;
 
 	[Header("State Machine")]
 	public bool m_useStateMachine;
@@ -284,39 +285,41 @@ public class BoatAgent : MonoBehaviour {
 
 	void OnDrawGizmos()
 	{
-		switch (m_currentState)
-		{
-			case State.Patrol:
+		if(m_Gizmo){
+			switch (m_currentState)
 			{
-				Gizmos.color = Color.yellow;
-				Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_chaseDistance);
+				case State.Patrol:
+				{
+					Gizmos.color = Color.yellow;
+					Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_chaseDistance);
+					break;
+				}
+				case State.Chase:
+				{
+					Gizmos.color = Color.yellow;
+					Gizmos.DrawLine(m_TargetPlayerDestination - Vector3.right*5, m_TargetPlayerDestination + Vector3.right*5);
+					Gizmos.DrawLine(m_TargetPlayerDestination - Vector3.forward*5, m_TargetPlayerDestination + Vector3.forward*5);
+					Gizmos.color = Color.red;
+					Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_combatDistance);
+					break;
+				}
+				case State.Flee:
+				{
+					break;
+				}
+				case State.Combat:
+				{
+					Gizmos.color = Color.red;
+					Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_combatDistance);
+					//Gizmos.DrawLine(transform.position, m_combatDestination);
+					//Gizmos.DrawWireSphere(m_combatDestination, 10);
+					//Gizmos.color = Color.green;
+					//Gizmos.DrawRay(transform.position, m_agent.velocity*10);
+					break;
+				}
+				default: 
 				break;
 			}
-			case State.Chase:
-			{
-				Gizmos.color = Color.yellow;
-				Gizmos.DrawLine(m_TargetPlayerDestination - Vector3.right*5, m_TargetPlayerDestination + Vector3.right*5);
-				Gizmos.DrawLine(m_TargetPlayerDestination - Vector3.forward*5, m_TargetPlayerDestination + Vector3.forward*5);
-				Gizmos.color = Color.red;
-				Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_combatDistance);
-				break;
-			}
-			case State.Flee:
-			{
-				break;
-			}
-			case State.Combat:
-			{
-				Gizmos.color = Color.red;
-				Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_combatDistance);
-				//Gizmos.DrawLine(transform.position, m_combatDestination);
-				//Gizmos.DrawWireSphere(m_combatDestination, 10);
-				//Gizmos.color = Color.green;
-				//Gizmos.DrawRay(transform.position, m_agent.velocity*10);
-				break;
-			}
-			default: 
-			break;
 		}
 	}
 }

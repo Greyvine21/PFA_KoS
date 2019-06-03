@@ -70,12 +70,10 @@ public class Canon : MonoBehaviour {
 
 	void Update()
 	{
-		if(CanonZone.isZoneActive()){
-			InputRotation();
-		}
-		else{
-			//if(isLineActive)
-				//curve.m_line.enabled = false;
+		if(CanonZone){
+			if(CanonZone.isZoneActive()){
+				InputRotation();
+			}
 		}
 
 	}

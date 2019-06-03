@@ -18,6 +18,8 @@ public class AgentController : MonoBehaviour {
     private Transform m_Cam;
     //private Vector3 m_CamForward;
 	[HideInInspector] public Vector3 m_Move;
+	public float velocity;
+
 
 	private bool isMoving;
 	public bool m_agentCanMove = true;
@@ -43,7 +45,7 @@ public class AgentController : MonoBehaviour {
 			float shipAngle = m_shipMobile.eulerAngles.y;
 			m_camOffset.rotation = m_camPivot.rotation * Quaternion.AngleAxis(-shipAngle, Vector3.up);
 
-			m_Move = m_camOffset.TransformDirection(new Vector3(m_actions.m_inputH, 0, m_actions.m_inputV)).normalized * Time.deltaTime;
+			m_Move = m_camOffset.TransformDirection(new Vector3(m_actions.m_inputH, 0, m_actions.m_inputV) * Time.deltaTime).normalized;
 
             //m_CamForward = Vector3.Scale(m_Cam.forward, new Vector3(1, 0, 1)).normalized;
            	//m_Move = m_actions.m_inputV * m_CamForward * Time.deltaTime + m_actions.m_inputH * m_Cam.right * Time.deltaTime;
@@ -52,7 +54,7 @@ public class AgentController : MonoBehaviour {
             Debug.LogError("No main Camera");
 		
         //isMoving = (m_Move.sqrMagnitude > 0);
-
+		velocity = m_Move.magnitude;
 
 		//Target = transform.position + m_Move * 100;
 		//if(isMoving){
@@ -60,7 +62,7 @@ public class AgentController : MonoBehaviour {
 		//}
 		//m_agent.Move(m_Move.normalized*m_steps);
 		if(m_agentCanMove)
-			m_agent.velocity = m_Move.normalized * m_speed;
+			m_agent.velocity = m_Move * m_speed;
 		Debug.DrawRay(transform.position, m_agent.velocity, Color.red);
 	}
 

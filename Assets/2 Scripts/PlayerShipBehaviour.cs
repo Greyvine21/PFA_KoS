@@ -11,8 +11,9 @@ public class PlayerShipBehaviour : FloatingShip {
 	
 	void Update() 
 	{
-        UserInput();
+        //UserInput();
 		SailsStateUpdate();
+		TurnCabestan();
     }
 
 
@@ -31,30 +32,34 @@ public class PlayerShipBehaviour : FloatingShip {
 	}
 
 	//INPUT 
-    void UserInput()
-    {
-        //Forward / reverse
-		if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-			OrderSailsUp();
-        }		
-		if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-			OrderSailsDown();
-        }
+    // void UserInput()
+    // {
+    //     //Forward / reverse
+	// 	if (Input.GetKeyDown(KeyCode.UpArrow))
+    //     {
+	// 		OrderSailsUp();
+    //     }		
+	// 	if (Input.GetKeyDown(KeyCode.DownArrow))
+    //     {
+	// 		OrderSailsDown();
+    //     }
 
-		float m_inputH = Input.GetAxisRaw("Horizontal");
+	// 	float m_inputH = Input.GetAxisRaw("Horizontal");
 
-        //Steer left
-        if (Input.GetKey(KeyCode.LeftArrow) || (m_inputH < 0 && rudderInteractZone.isZoneActive()))
-        {
-			SteerLeft();
-        }
+    //     //Steer left
+    //     if (Input.GetKey(KeyCode.LeftArrow) || (m_inputH < 0 && m_rudderInteractZone.isZoneActive()))
+    //     {
+	// 		SteerLeft();
+    //     }
 
-        //Steer right
-        else if (Input.GetKey(KeyCode.RightArrow) || (m_inputH > 0 && rudderInteractZone.isZoneActive()))
-        {
-			SteerRight();
-        }
-    }
+    //     //Steer right
+    //     else if (Input.GetKey(KeyCode.RightArrow) || (m_inputH > 0 && m_rudderInteractZone.isZoneActive()))
+    //     {
+	// 		SteerRight();
+    //     }
+
+	// 	if(Input.GetButtonDown("X360_A") && m_anchorZone.isZoneActive()){
+	// 		Anchor();
+	// 	}
+    // }
 }

@@ -38,26 +38,24 @@ public class Bullet : MonoBehaviour {
 		Destroy(gameObject);
 	}
 
-	private void Damage(string tag, healthManager health){				
+	private void Damage(string tag, healthManager health){
+		
+		health.DecreaseLife(0, m_damage); //hull				
 		switch (tag)
 		{
 			case "HullSystem":
-				health.DecreaseLife(0, m_damage); //hull
 			break;
 			case "SailSystem":
 				health.SpawnImpact(health.m_impactSails);
-				health.DecreaseLife(0, m_damage); //hull
-				health.DecreaseLife(1, m_damage); //Sails
+				//health.DecreaseLife(1, m_damage); //Sails
 			break;
 			case "NavigationSystem":
 				health.SpawnImpact(health.m_impactNavigation);
-				health.DecreaseLife(0, m_damage); //hull
-				health.DecreaseLife(2, m_damage); //Nav
+				//health.DecreaseLife(2, m_damage); //Nav
 			break;
 			case "BridgeSystem":
 				health.SpawnImpact(health.m_impactBridge);
-				health.DecreaseLife(0, m_damage); //hull
-				health.DecreaseLife(3, m_damage); //Bridge
+				//health.DecreaseLife(3, m_damage); //Bridge
 			break;
 			default:					
 			break;

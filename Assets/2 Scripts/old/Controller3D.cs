@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Controller3D : MonoBehaviour {
 	
-    [Header("References")]
+    /*[Header("References")]
     [SerializeField] public Transform m_Body;
 
     [Header("Moving")]
@@ -32,7 +32,7 @@ public class Controller3D : MonoBehaviour {
 	[HideInInspector] public Rigidbody m_rbPlayer;
 	private float m_inputH;
 	private float m_inputV;
-	/*[HideInInspector]*/ public bool m_isInteracting;
+	/*[HideInInspector] public bool m_isInteracting;
     private FixedJoint m_fixedJointTemp;
     private Transform m_Cam;
     private LineRenderer m_lineGun;
@@ -216,5 +216,5 @@ public class Controller3D : MonoBehaviour {
         if(Input.GetAxisRaw("X360_Triggers") > 0 && canShoot){
             StartCoroutine("Shoot", false);
         }
-	}
+	}*/
 }
