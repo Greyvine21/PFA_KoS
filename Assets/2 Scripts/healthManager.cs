@@ -30,7 +30,7 @@ public class healthManager : MonoBehaviour {
     public ImpactZone m_impactNavigation;
     public ImpactZone m_impactBridge;
     public ImpactZone m_impactSails;
-    public int m_nbImpact;
+    public int m_totalNbImpact;
 
     // public Slider m_lifebar;
     // public float life = 100;
@@ -43,7 +43,7 @@ public class healthManager : MonoBehaviour {
 
 	void Start()
 	{
-        m_nbImpact = 0;
+        m_totalNbImpact = 0;
         //
         for (int i = 0; i < m_lifebars.Length; i++)
         {
@@ -61,11 +61,11 @@ public class healthManager : MonoBehaviour {
 
         if(m_lifebars[index].lifePoints <= 0){
             if(index == 0){
-                if(GetComponent<EnnemyShipBehaviour>())
-                    GetComponent<EnnemyShipBehaviour>().Defeat();
+                if(GetComponentInParent<EnnemyShipBehaviour>())
+                    GetComponentInParent<EnnemyShipBehaviour>().Defeat();
                 else if(GetComponentInParent<PlayerShipBehaviour>()){
-                    m_lifebars[index].lifePoints = m_lifebars[index].MaxlifePoints;
-                    //print("Defeat");
+                    //m_lifebars[index].lifePoints = m_lifebars[index].MaxlifePoints;
+                    GetComponentInParent<PlayerShipBehaviour>().Defeat();
                 }
             }
         }
@@ -99,6 +99,7 @@ public class healthManager : MonoBehaviour {
             m_lifebars[index].ColorBar.color = Green;
         }
     }
+    
     public void SpawnImpact(ImpactZone impactZone){
         
         if(Random.Range(0, 101) <= m_impactPercentage){
@@ -111,9 +112,8 @@ public class healthManager : MonoBehaviour {
 
             //print("impact count : " + unactiveImpacts.Count);
             if(unactiveImpacts.Count > 0){
-                m_nbImpact ++;
+                m_totalNbImpact ++;
                 if(unactiveImpacts[Random.Range(0, unactiveImpacts.Count)].ActiveImpact()){
-                    impactZone.activeImpactNb ++;
                     impactZone.AddImpactUI();
                 }
             }

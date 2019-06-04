@@ -19,27 +19,36 @@ public class Impact : MonoBehaviour
 		m_mesh = GetComponent<MeshRenderer>();
 		m_impactCollider = GetComponent<Collider>();
 		m_health = GetComponentInParent<healthManager>();
+		m_parentZone = GetComponentInParent<ImpactZone>();
 	}
 
 	public bool ActiveImpact(){
 		if(canBeActivated){
-			//gameObject.SetActive(true);
+			
 			m_mesh.enabled = true;
 			m_impactCollider.enabled = true;
-			m_parentZone = GetComponentInParent<ImpactZone>();
-			canBeActivated = false;
+
+			m_parentZone.activeImpactNb ++;
+
 			isActive = true;
 			name = "Impact OK";
+
+			canBeActivated = false;
 			return true;
 		}
 		return false;
 	}
 
 	public void DisableImpact(bool cd = false){
-		isActive = false;
+
 		m_mesh.enabled = false;
 		m_impactCollider.enabled = false;
+
+		m_parentZone.activeImpactNb --;
+
+		isActive = false;
 		name = "Impact";
+		
 		if(cd)
 			StartCoroutine("DisableCooldown");
 	}
