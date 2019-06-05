@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ActionsController : MonoBehaviour {
 
-    [SerializeField] private Transform m_upperBody;
+    [SerializeField] private MinionsManager m_minions;
 
     [Header("Shooting")]
     //[SerializeField] private RaycastManager m_raycastManager;
@@ -13,7 +13,8 @@ public class ActionsController : MonoBehaviour {
     //[SerializeField] private GameObject m_HitSphere;
     //[SerializeField] private LayerMask m_shootLayer;
     //[SerializeField] private Transform m_shootPoint;
-    //[SerializeField] private float m_bulletSpeed;
+    [SerializeField] private float m_shootShakeDuration = 0.5f;
+    [SerializeField] private float m_shootShakeMagnitude = 0.5f;
     [SerializeField] private float m_ShootDelay;
     //[SerializeField] private GameObject m_Bullet;
 
@@ -39,6 +40,7 @@ public class ActionsController : MonoBehaviour {
     private PlayerShipBehaviour m_ship;
     private CanonManager m_Canons;
 	private Animator m_animRepairText;
+	private Animator m_animPlayer;
     private healthManager m_shiphealth;
     private Transform m_camera;
 
@@ -54,6 +56,7 @@ public class ActionsController : MonoBehaviour {
         m_repairSlider.value = 0;
         //
         m_receiver = GetComponent<AgentController_Receiver>();
+        m_animPlayer = m_receiver.m_animator;
 	}
 	
 	// Update is called once per frame
@@ -61,8 +64,12 @@ public class ActionsController : MonoBehaviour {
 	{
 		CharInput();
 
+        //
+        if(m_animPlayer){
+			m_animPlayer.SetBool("canMove" , m_receiver.m_ControllerAgent.m_agentCanMove);
+        }
         //Repair
-        if(m_shiphealth.m_nbImpact > 0)
+        if(m_shiphealth.m_totalNbImpact > 0)
             RaycastImpact();
 	}
 
@@ -79,11 +86,11 @@ public class ActionsController : MonoBehaviour {
 
         //MVT
         m_inputH = Input.GetAxis("Horizontal");
-        /*if (Mathf.Abs(m_inputH) > 1)
-            m_inputH = 1;*/
+        if (Mathf.Abs(m_inputH) > 1)
+            m_inputH = 1;
         m_inputV = Input.GetAxis("Vertical");
-        /*if (Mathf.Abs(m_inputV) > 1)
-            m_inputV = 1;*/
+        if (Mathf.Abs(m_inputV) > 1)
+            m_inputV = 1;
         
         //INTERACT
         if(Input.GetButtonDown("X360_A") && canInteract){
@@ -156,26 +163,44 @@ public class ActionsController : MonoBehaviour {
     private IEnumerator Shoot(bool isLeft){
         canShootLeft = !isLeft;
         canShootRight = isLeft;
+
         //print("shoot");
         //GameObject bullet = Instantiate(m_Bullet, m_shootPoint.position, m_shootPoint.rotation);
         //bullet.name = "Bullet";
         //bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_bulletSpeed, ForceMode.Impulse);
+
         if(isLeft){
-            //m_ship.m_canonsLeft.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
-            m_Canons.ShootCanon(m_Canons.m_canonsLeft);
+            if(m_Canons.ShootCanon(m_Canons.m_canonsLeft, m_minions.m_gunnersLeft)){               
+                PlayerShootAnim();
+            }
             m_Canons.ReloadCanon(m_Canons.m_canonsLeft);
+            //yield return new WaitForSeconds(0.6f);
         }
         else{
-            //m_ship.m_canonsRight.BroadcastMessage("CanonShoot", SendMessageOptions.DontRequireReceiver);
-            m_Canons.ShootCanon(m_Canons.m_canonsRight);
+            if(m_Canons.ShootCanon(m_Canons.m_canonsRight, m_minions.m_gunnersRight)){        
+                PlayerShootAnim();
+            }
             m_Canons.ReloadCanon(m_Canons.m_canonsRight);
+            //yield return new WaitForSeconds(0.6f);
         }
+
+        yield return new WaitForSeconds(1f);
+
+        m_receiver.m_ControllerAgent.m_agentCanMove = true;
 
         yield return new WaitForSeconds(m_ShootDelay);
 
         canShootLeft = true;
         canShootRight = true;
     }
+
+    private void PlayerShootAnim(){
+        m_receiver.m_ControllerAgent.m_agentCanMove = false;
+        m_receiver.m_ControllerAgent.m_agent.velocity = Vector3.zero;
+        //StartCoroutine(CameraShake.Shake(m_shootShakeDuration, m_shootShakeMagnitude));
+        m_animPlayer.Play("Charge");
+    }
+
 
     private void RaycastImpact()
 	{
@@ -205,6 +230,7 @@ public class ActionsController : MonoBehaviour {
 
     private IEnumerator Repair(Impact impact){
         isRepairing = true;
+        m_minions.SendUnitTo(m_impactSelected.transform.position - m_ship.transform.position, 3);
 
         for (int i = (int)m_repairSlider.value; i < m_repairSlider.maxValue; i++)
         {
@@ -215,6 +241,7 @@ public class ActionsController : MonoBehaviour {
         m_shiphealth.IncreaseLife(0, (int)((m_HealPercentage/100) * m_shiphealth.m_lifebars[0].MaxlifePoints));
         impact.DisableImpact(true);
         impact.m_parentZone.RemoveImpactUI();
+        m_shiphealth.m_totalNbImpact --;
         m_repairSlider.value = 0;
         isRepairing = false;
     }

@@ -30,7 +30,7 @@ public class IA_pirate : MonoBehaviour {
 	protected bool wanderCoroutine = false;
 	protected float m_baseSpeed;
 
-	void Start () {
+	protected void Start () {
 		m_agent = GetComponent<NavMeshAgent>();
 
 		m_baseSpeed = m_agent.speed;
@@ -40,6 +40,7 @@ public class IA_pirate : MonoBehaviour {
  
     // Update is called once per frame
     protected void Update () {
+
         timer += Time.deltaTime;
 
         if (timer >= wanderTimer && canWander) {
@@ -63,15 +64,4 @@ public class IA_pirate : MonoBehaviour {
  
         return navHit.position;
     }
-
-	protected IEnumerator StopWander(){
-		wanderCoroutine = true;
-		m_agent.enabled = false;
-
-		yield return new WaitForSeconds(stopWanderTime);
-		
-		m_agent.speed = m_baseSpeed;
-		canWander = true;
-		wanderCoroutine = false;
-	}
 }
