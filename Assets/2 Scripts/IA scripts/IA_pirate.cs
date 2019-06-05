@@ -20,7 +20,6 @@ public class IA_pirate : MonoBehaviour {
     public float wanderTimerMax = 3f;
     private float wanderTimer;
     public float stopWanderTime = 5;
-	public bool canWander = true;
  
     private Transform target;
     private float timer;
@@ -38,12 +37,10 @@ public class IA_pirate : MonoBehaviour {
         timer = wanderTimer;
 	}
  
-    // Update is called once per frame
-    protected void Update () {
-
+    protected void Wander(){
         timer += Time.deltaTime;
 
-        if (timer >= wanderTimer && canWander) {
+        if (timer >= wanderTimer) {
             Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
 			m_agent.enabled = true;
             m_agent.SetDestination(newPos);
@@ -52,8 +49,17 @@ public class IA_pirate : MonoBehaviour {
             timer = 0;
         }
     }
+
+	public void GoTo(Vector3 pos, float stoppingDist = 2, float distanceOffset = 3){
+		m_agent.stoppingDistance = stoppingDist;
+		NavMeshHit navHit;
  
-    public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask) {
+        if(NavMesh.SamplePosition(pos, out navHit, distanceOffset, -1)){
+			m_agent.SetDestination(navHit.position);
+		}
+	}
+
+    private static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask) {
         Vector3 randDirection = Random.insideUnitSphere * dist;
  
         randDirection += origin;

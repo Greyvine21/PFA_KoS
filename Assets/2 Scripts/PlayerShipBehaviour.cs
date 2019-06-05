@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerShipBehaviour : FloatingShip {
 
 	private bool isDefeated;
+	[Header("Player")]
 	public bool canMove;
 	private CanonManager m_canonsManager;
 
@@ -20,10 +21,10 @@ public class PlayerShipBehaviour : FloatingShip {
 	
 	void Update() 
 	{
-        //UserInput();
+    //UserInput();
 		SailsStateUpdate();
 		TurnCabestan();
-    }
+  }
 
 
 	void FixedUpdate()

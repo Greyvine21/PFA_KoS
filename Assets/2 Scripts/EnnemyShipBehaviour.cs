@@ -8,7 +8,8 @@ public class EnnemyShipBehaviour : FloatingShip {
 	public bool canMove;
 	public Transform m_navmeshBoat;
 	public Transform m_lookAgent;
-	public LayerMask m_raycastMask;
+	public LayerMask m_raycastMaskCollision;
+	public LayerMask m_raycastMaskAgent;
 	public float m_raycastRange;
 
 	[Header("IA Shoot")]
@@ -42,8 +43,10 @@ public class EnnemyShipBehaviour : FloatingShip {
 		//
 		m_canonsManager = GetComponentInChildren<CanonManager>();
 		//
-		m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
-		m_TargetShip = m_Target.GetComponent<PlayerShipBehaviour>();
+		if(GameObject.FindGameObjectWithTag("PlayerShip")){
+			m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
+			m_TargetShip = m_Target.GetComponent<PlayerShipBehaviour>();
+		}
 		//
 		m_boatAgent = m_navmeshBoat.GetComponent<BoatAgent>();
         
@@ -61,7 +64,8 @@ public class EnnemyShipBehaviour : FloatingShip {
 			UpdateTargetPositionAndDirection();
 		}
 		else{
-			m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
+			if(GameObject.FindGameObjectWithTag("PlayerShip"))
+				m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
 		}
 
 		//
@@ -81,7 +85,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 	{
 		Float();
 		
-		if(canMove){
+		if(canMove && (m_boatAgent.m_pathOK || m_boatAgent.PlayerDetected)){
 			AddMainForce(forward);
 			TurningForce();
 		}
@@ -109,7 +113,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 		Vector3 start = transform.position + transform.forward*30;
 		float radius = 15;
 
-		if(Physics.SphereCast(start, radius, transform.forward, out hit, m_raycastRange, m_raycastMask, QueryTriggerInteraction.Ignore)){
+		if(Physics.SphereCast(start, radius, transform.forward, out hit, m_raycastRange, m_raycastMaskCollision, QueryTriggerInteraction.Ignore)){
 			if(hit.collider.gameObject.layer != 15){
 				//print(hit.collider.gameObject.name + " has been hit");
 				if(!ObstacleDetected) ObstacleDetected = true;
@@ -131,7 +135,8 @@ public class EnnemyShipBehaviour : FloatingShip {
 		Vector3 start = transform.position/* + transform.forward*30*/;
 		//float radius = 15;
 		//distanceFromAgent = Vector3.Distance(transform.position, m_navmeshBoat.position);
-		if(Physics.Raycast(start, transform.forward, out hit, Mathf.Infinity, 17, QueryTriggerInteraction.Collide)){
+		//Debug.DrawRay(start, transform.forward * 2000, Color.red);
+		if(Physics.Raycast(start, transform.forward, out hit, Mathf.Infinity, m_raycastMaskAgent, QueryTriggerInteraction.Collide)){
 			SetRotationRudder(0);
 		}
 		else
@@ -139,7 +144,6 @@ public class EnnemyShipBehaviour : FloatingShip {
 			m_lookAgent.LookAt(m_navmeshBoat.position, transform.up);
 			angleFromAgent = Mathf.Abs(Vector3.Angle(transform.forward, m_lookAgent.forward));
 
-			//Debug.DrawRay(start, transform.forward * 2000, Color.red);
 			if(angleFromAgent > 10)
 				SetRotationRudder((transform.InverseTransformDirection(m_navmeshBoat.localPosition - transform.localPosition).x > 0)? -30 : 30);
 			else
@@ -214,23 +218,25 @@ public class EnnemyShipBehaviour : FloatingShip {
 	}
 
 	private void UpdateTargetPositionAndDirection(){
-		//Script
-		if(!m_TargetShip)
-			m_TargetShip = m_Target.GetComponent<PlayerShipBehaviour>();
-		
-		//distance
-		distanceFromTarget = Vector3.Distance(transform.position, m_Target.position);
+		if(m_Target){
+			//Script
+			if(!m_TargetShip)
+				m_TargetShip = m_Target.GetComponent<PlayerShipBehaviour>();
+			
+			//distance
+			distanceFromTarget = Vector3.Distance(transform.position, m_Target.position);
 
-		//Local position	
-		m_TargetGlobalPos = transform.InverseTransformDirection(m_Target.localPosition - transform.localPosition);
+			//Local position	
+			m_TargetGlobalPos = transform.InverseTransformDirection(m_Target.localPosition - transform.localPosition);
 
-		//Direction
-		//m_TargetDirection = m_TargetShip.m_shipVelocity;
+			//Direction
+			//m_TargetDirection = m_TargetShip.m_shipVelocity;
 
-		//DEBUG
-		//Debug.DrawRay(m_TargetPos, m_TargetDirection*10, Color.red);
-		//Debug.DrawLine(m_TargetPos - Vector3.right*10, m_TargetPos + Vector3.right*10, Color.red);
-		//Debug.DrawLine(m_TargetPos - Vector3.forward*10, m_TargetPos + Vector3.forward*10, Color.red);
+			//DEBUG
+			//Debug.DrawRay(m_TargetPos, m_TargetDirection*10, Color.red);
+			//Debug.DrawLine(m_TargetPos - Vector3.right*10, m_TargetPos + Vector3.right*10, Color.red);
+			//Debug.DrawLine(m_TargetPos - Vector3.forward*10, m_TargetPos + Vector3.forward*10, Color.red);
+		}
 	}
 
 	private void SelectCanonsSide(){
