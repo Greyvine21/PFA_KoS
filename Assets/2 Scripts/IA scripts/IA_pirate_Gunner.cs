@@ -17,10 +17,8 @@ public class IA_pirate_Gunner : IA_pirate {
 		m_startRot = transform.rotation;
 	}
 
-	new void Update()
+	void Update()
 	{
-		base.Update();
-
 		if(Vector3.Distance(transform.position, m_startPos) > m_minDist){
 			m_agent.SetDestination(m_startPos);
 		}

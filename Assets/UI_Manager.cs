@@ -10,6 +10,6 @@ public class UI_Manager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		m_UIText.transform.position = Camera.main.WorldToScreenPoint(m_enemyShip.position);
+		//m_UIText.transform.position = Camera.main.WorldToScreenPoint(m_enemyShip.position);
 	}
 }

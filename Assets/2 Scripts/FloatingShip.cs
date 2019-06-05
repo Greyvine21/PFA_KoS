@@ -80,6 +80,9 @@ public class FloatingShip : MonoBehaviour {
 	protected void Start()
 	{
 		m_shipRB = GetComponent<Rigidbody>();
+		if(!m_ocean && GameObject.FindGameObjectWithTag("Ocean")){
+			m_ocean = GameObject.FindGameObjectWithTag("Ocean").GetComponent<Ocean>();
+		}
 		//m_shipRB.centerOfMass = m_CenterOfMass.position - transform.position;
 
 		foreach (Transform sail in m_sails)
@@ -354,9 +357,10 @@ public class FloatingShip : MonoBehaviour {
 
 		foreach (Buoy point in m_buoy)
 		{
-			if(point.transform.gameObject.activeSelf){
-				if(useOcean && m_ocean.gameObject.activeSelf){
-					m_waterLevel = m_ocean.GetWaterHeightAtLocation(point.transform.position.x, point.transform.position.y);
+			if(point.transform.gameObject.activeInHierarchy){
+				if(useOcean && m_ocean){
+					if( m_ocean.gameObject.activeInHierarchy )
+						m_waterLevel = m_ocean.GetWaterHeightAtLocation(point.transform.position.x, point.transform.position.y);
 				}else{
 					m_waterLevel = -3;
 				}
@@ -497,9 +501,9 @@ public class FloatingShip : MonoBehaviour {
 				//Gizmos.DrawLine(point.transform.position, tmp);
 			}
 			
-			Gizmos.color = Color.magenta;
-			if(m_shipRB)
-				Gizmos.DrawWireSphere(m_shipRB.centerOfMass, 0.5f);
+			//Gizmos.color = Color.magenta;
+			//if(m_shipRB)
+				//Gizmos.DrawWireSphere(m_shipRB.centerOfMass, 0.5f);
 
 			//Height
 			//Gizmos.color = Color.white;

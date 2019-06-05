@@ -36,6 +36,7 @@ public class BoatAgent : MonoBehaviour {
 	[Header("Monitoring value")]
 	public bool PlayerDetected;
 	public bool m_isCheckingNavmesh;
+	public bool m_pathOK;
 	public float m_distanceFromTargetPlayer;
 	public float m_distanceFromEnnemyShip;
 	public float m_agentVelocity;
@@ -55,7 +56,8 @@ public class BoatAgent : MonoBehaviour {
 	{
 		m_agent = GetComponent<NavMeshAgent>();
 		//
-		m_targetPlayer = GameObject.FindGameObjectWithTag("PlayerShip").GetComponent<PlayerShipBehaviour>();
+		if(GameObject.FindGameObjectWithTag("PlayerShip"))
+			m_targetPlayer = GameObject.FindGameObjectWithTag("PlayerShip").GetComponent<PlayerShipBehaviour>();
 	}
 
 	void OnEnable()
@@ -66,11 +68,13 @@ public class BoatAgent : MonoBehaviour {
 	void Update () 
 	{
 		//Get distances and Velocity
-		m_distanceFromTargetPlayer = Vector3.Distance(transform.position, m_TargetPlayerDestination);
 		m_distanceFromEnnemyShip = Vector3.Distance(transform.position, m_EnnemyShip.transform.position);
 		m_agentVelocity = m_agent.velocity.magnitude;
 		m_ennemyShipVelocity = m_EnnemyShip.m_shipVelocity.magnitude;
-		m_TargetPlayerVelocity = m_targetPlayer.m_shipRB.velocity.magnitude;
+		if(m_targetPlayer){
+			m_TargetPlayerVelocity = m_targetPlayer.m_shipRB.velocity.magnitude;
+			m_distanceFromTargetPlayer = Vector3.Distance(transform.position, m_TargetPlayerDestination);
+		}
 		
 		//
 		DetectTarget();
@@ -212,9 +216,10 @@ public class BoatAgent : MonoBehaviour {
 		NavMeshPath navMeshPath = new NavMeshPath();
 		m_agent.autoBraking = true;
 
-		if (m_patrolPath == null)
+		if (m_patrolPath == null || !m_patrolPath.gameObject.activeInHierarchy)
 		{
-			Debug.LogError("No path found");
+			m_pathOK = false;
+			return;
 		}
 		else
 		{
@@ -229,6 +234,7 @@ public class BoatAgent : MonoBehaviour {
 		//print(targetDestination);
 		if (targetDestination != Vector3.zero && m_agent.CalculatePath(targetDestination, navMeshPath))
 		{
+			m_pathOK = true;
 			//print("path ok");
 			m_agent.SetPath(navMeshPath);
 		}
@@ -265,18 +271,20 @@ public class BoatAgent : MonoBehaviour {
 	}
 	
 	private void DetectTarget(){
-		if(PlayerDetected){		
-			if(m_EnnemyShip.distanceFromTarget > m_chaseDistance){
-				//print(name + " is out combat");
-				m_chaseDistance /= 1.2f;
-				PlayerDetected = false;
+		if(m_targetPlayer){
+			if(PlayerDetected){		
+				if(m_EnnemyShip.distanceFromTarget > m_chaseDistance){
+					//print(name + " is out combat");
+					m_chaseDistance /= 1.2f;
+					PlayerDetected = false;
+				}
 			}
-		}
-		else{
-			if(m_EnnemyShip.distanceFromTarget < m_chaseDistance){
-				//print(name + " is in combat");
-				m_chaseDistance *= 1.2f;
-				PlayerDetected = true;
+			else{
+				if(m_EnnemyShip.distanceFromTarget < m_chaseDistance){
+					//print(name + " is in combat");
+					m_chaseDistance *= 1.2f;
+					PlayerDetected = true;
+				}
 			}
 		}
 	}

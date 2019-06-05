@@ -56,10 +56,10 @@ public class ImpactZone : MonoBehaviour {
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.magenta;
+        /*Gizmos.color = Color.magenta;
         foreach (Impact item in zone)
         {
             Gizmos.DrawSphere( item.transform.position - transform.GetComponentInParent<FloatingShip>().transform.position, 3);
-        }
+        }*/
     }
 }
