@@ -9,11 +9,6 @@ public struct Buoy{
 	public bool applyGravityForce;
 }
 
-public enum SailsState{
-	sailsZeroPerCent = 0,
-	sailsFiftyPerCent,
-	sailsHundredPerCent
-}
 
 public class FloatingShip : MonoBehaviour {
 
@@ -32,6 +27,10 @@ public class FloatingShip : MonoBehaviour {
 	//[SerializeField] private float m_maxVelocity = 4f;
 	[SerializeField] protected Buoy[] m_buoy;
 
+	[Header("Forward force")]
+	[SerializeField] protected float m_externalSpeedMultiplier = 1;
+	[SerializeField] protected float m_forwardAcceleration;
+
 	[Header("Turning force")]
     [SerializeField] protected Transform FrontTransform;
     [SerializeField] protected Transform rudderBladeTransform;
@@ -40,15 +39,6 @@ public class FloatingShip : MonoBehaviour {
     protected float rotationAngle = 30;
     [SerializeField] protected float m_turningForce;
     [SerializeField] protected float rotationRudderBlade = 2f;
-
-	[Header("Sails")]
-	[SerializeField] public SailsState m_sailsSate = SailsState.sailsZeroPerCent;
-	[SerializeField] protected float m_MaxForwardSpeed;
-	[SerializeField] protected float m_externalSpeedMultiplier = 1;
-	[SerializeField] protected float m_forwardAcceleration;
-	[SerializeField] protected Transform[] m_sails;
-	[SerializeField] protected float m_sailsUpSpeed;
-	[SerializeField] protected float m_sailsDownSpeed;
 
 	[Header("Anchor")]
     [SerializeField] private Transform m_cabestanPivot;
@@ -68,41 +58,24 @@ public class FloatingShip : MonoBehaviour {
 	#endregion Fields
 
 	#region Privates
-	protected float forward;
+	public float forward;
 	protected float m_waterLevel;
-	protected bool sailsGoingUp, SailsGoingDown;
-	protected SailsState m_sailsStateOLD;
     protected float RudderBladeRotation_Y = 0f;
     protected float RudderRotation_Z = 0f;
 	public Rigidbody m_shipRB;
+	public SailsManager m_sailsManager;
+
 	#endregion Privates
 
 	protected void Start()
 	{
 		m_shipRB = GetComponent<Rigidbody>();
+		m_sailsManager = GetComponentInChildren<SailsManager>();
+
 		if(!m_ocean && GameObject.FindGameObjectWithTag("Ocean")){
 			m_ocean = GameObject.FindGameObjectWithTag("Ocean").GetComponent<Ocean>();
 		}
 		//m_shipRB.centerOfMass = m_CenterOfMass.position - transform.position;
-
-		foreach (Transform sail in m_sails)
-		{
-			switch (m_sailsSate)
-			{
-			case SailsState.sailsFiftyPerCent:
-				sail.localScale = new Vector3(1, 0.5f ,1);
-			break;
-			case SailsState.sailsHundredPerCent:
-				sail.localScale = new Vector3(1, 1 ,1);
-			break;			
-			case SailsState.sailsZeroPerCent:
-				sail.localScale = new Vector3(1, 0.04f ,1);
-			break;
-			default:
-				sail.localScale = new Vector3(1, 10 ,1);
-			break;
-			}
-		}
 	}
 
 	//STEER	
@@ -155,134 +128,6 @@ public class FloatingShip : MonoBehaviour {
 
 	//SAILS
 	#region Sails
-	public bool OrderSailsUp(){
-		if (m_sailsSate != SailsState.sailsZeroPerCent && !sailsGoingUp)
-        {
-			m_sailsSate--;
-			return true;
-        }
-		return false;
-	}
-
-	public bool OrderSailsDown(){
-		if (m_sailsSate != SailsState.sailsHundredPerCent && !SailsGoingDown)
-        {
-			m_sailsSate++;
-			return true;
-        }
-		return false;
-	}
-
-	protected void SailsStateUpdate()
-	{
-		if(m_sailsSate != m_sailsStateOLD)
-		{
-			//print("change sails state");
-			switch (m_sailsSate)
-			{
-			case SailsState.sailsZeroPerCent:
-				forward = m_MaxForwardSpeed/5;
-				StopCoroutine("SailsDown");
-				SailsGoingDown = false;
-				StartCoroutine("SailsUp");
-			break;
-			case SailsState.sailsFiftyPerCent:
-				forward = m_MaxForwardSpeed/2;
-				if(m_sailsStateOLD > m_sailsSate)
-				{
-					StopCoroutine("SailsDown");
-					SailsGoingDown = false;
-					StartCoroutine("SailsUp");
-				}
-				else
-				{
-					StopCoroutine("SailsUp");
-					sailsGoingUp = false;
-					StartCoroutine("SailsDown");
-				}
-
-			break;
-			case SailsState.sailsHundredPerCent:
-				forward = m_MaxForwardSpeed;
-				StopCoroutine("SailsUp");
-				sailsGoingUp = false;
-				StartCoroutine("SailsDown");
-			break;
-			default:
-				AddMainForce(0);
-			break;
-			}
-			
-			m_sailsStateOLD = m_sailsSate;
-		}
-	}
-	protected IEnumerator SailsUp(){
-		sailsGoingUp = true;
-		
-		float MinScale;
-		switch (m_sailsSate)
-		{
-			case SailsState.sailsFiftyPerCent:
-				MinScale = 0.5f;
-			break;
-			case SailsState.sailsZeroPerCent:
-				MinScale = 0.04f;
-			break;
-			default:
-				MinScale = 1.5f;
-			break;
-		}
-
-		while (m_sails[0].localScale.y > MinScale)
-		{
-			foreach (Transform sail in m_sails)
-			{
-				sail.localScale -= new Vector3(0, 0.01f ,0);
-				yield return new WaitForSeconds(1/m_sailsUpSpeed);
-			}
-		}
-		
-		// foreach (Transform sail in m_sails)
-		// {
-		// 	sail.localScale = new Vector3(0, MinScale ,0);
-		// }
-
-		sailsGoingUp = false;
-	}
-
-	protected IEnumerator SailsDown(){
-		SailsGoingDown = true;
-		
-		float MaxScale;
-		switch (m_sailsSate)
-		{
-			case SailsState.sailsFiftyPerCent:
-				MaxScale = 0.5f;
-			break;
-			case SailsState.sailsHundredPerCent:
-				MaxScale = 1f;
-			break;
-			default:
-				MaxScale = 1.5f;
-			break;
-		}
-
-		while (m_sails[0].localScale.y < MaxScale)
-		{
-			foreach (Transform sail in m_sails)
-			{
-				sail.localScale += new Vector3(0, 0.05f ,0);
-				yield return new WaitForSeconds(1/m_sailsDownSpeed);
-			}
-		}
-		
-		// foreach (Transform sail in m_sails)
-		// {
-		// 	sail.localScale = new Vector3(0, MaxScale ,0);
-		// }
-
-		SailsGoingDown = false;
-	}
 	#endregion Sails
 
 	//FORCES
@@ -310,7 +155,7 @@ public class FloatingShip : MonoBehaviour {
     protected void TurningForce()
     {
         Vector3 turningForceTemp;
-		switch (m_sailsSate)
+		switch (m_sailsManager.m_sailsSate)
 		{
 			case SailsState.sailsZeroPerCent:
 				turningForceTemp = rudderBladeTransform.forward * m_turningForce * 1;
