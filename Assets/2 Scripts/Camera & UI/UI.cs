@@ -31,42 +31,42 @@ public enum Contextes{
 
 public class UI : MonoBehaviour {
 
-	[Header("ordres")]		
-	[SerializeField] private Color m_textColor;
-	[SerializeField] private Color m_highlightedColor;
-	[SerializeField] private Color m_orderFailColor;
-	[SerializeField] public Orders[] m_ordres;
+	//[Header("ordres")]		
+	//[SerializeField] private Color m_textColor;
+	//[SerializeField] private Color m_highlightedColor;
+	//[SerializeField] private Color m_orderFailColor;
+	//[SerializeField] public Orders[] m_ordres;
 
-	[Header("References")]	
+	//[Header("References")]	
 	//[SerializeField] private Transform m_minions;	
-	[SerializeField] private PlayerShipBehaviour m_ship;
-	[SerializeField] private Animator m_playerAnim;
-	[SerializeField] private Text m_voiceText;
-	[SerializeField] private Text m_textHaut;
-	[SerializeField] private Text m_textDroite;
-	[SerializeField] private Text m_textBas;
-	[SerializeField] private Text m_textGauche;
+	//[SerializeField] private PlayerShipBehaviour m_ship;
+	//[SerializeField] private Animator m_playerAnim;
+	//[SerializeField] private Text m_voiceText;
+	//[SerializeField] private Text m_textHaut;
+	//[SerializeField] private Text m_textDroite;
+	//[SerializeField] private Text m_textBas;
+	//[SerializeField] private Text m_textGauche;
 
 	//public EventSystem m_EventSystem;
 
-	private bool textCoroutine;
-    private GameObject m_lastSelected;
-	private Contextes m_contexte = Contextes.Canon;
-	private Color m_colorHighlight;
+	//private bool textCoroutine;
+    //private GameObject m_lastSelected;
+	//private Contextes m_contexte = Contextes.Canon;
+	//private Color m_colorHighlight;
 	
-	private string m_repliqueHautTemp;
-	private string m_repliqueDroiteTemp;
-	private string m_repliqueGaucheTemp;
-	private string m_repliqueBasTemp;
+	//private string m_repliqueHautTemp;
+	//private string m_repliqueDroiteTemp;
+	//private string m_repliqueGaucheTemp;
+	//private string m_repliqueBasTemp;
 
     private void Start()
     {
         //m_lastSelected = new GameObject();
 
-		m_textHaut.color = m_textColor;
-		m_textDroite.color = m_textColor; 
-		m_textBas.color = m_textColor; 
-		m_textGauche.color = m_textColor;
+		//m_textHaut.color = m_textColor;
+		//m_textDroite.color = m_textColor; 
+		//m_textBas.color = m_textColor; 
+		//m_textGauche.color = m_textColor;
 		//SelectOrder(1);
 	}
 

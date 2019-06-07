@@ -1,0 +1,26 @@
+fileFormatVersion: 2
+<<<<<<< HEAD:Assets/Sons/Ancre/Ancre_Lacher_V1.wav.meta
+guid: 16d659ba405e6ea468ffc65c717789b1
+=======
+guid: b455b39f931c19447941d3976612794c
+>>>>>>> d27de8de845cf3f269d74f6967d553b8f83f0267:Assets/Sound/Footstep/Footsteps_01.wav.meta
+AudioImporter:
+  externalObjects: {}
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 1
+    quality: 1
+    conversionMode: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  ambisonic: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

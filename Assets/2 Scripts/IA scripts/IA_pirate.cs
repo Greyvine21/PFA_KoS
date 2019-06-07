@@ -12,22 +12,25 @@ public enum Roles{
 
 public class IA_pirate : MonoBehaviour {
 
-	public Roles m_Role;
+	public Animator m_anim;
 
 	[Header("Wandering")]
 	public float wanderRadius = 1;
     public float wanderTimerMin = 0.2f;
     public float wanderTimerMax = 3f;
     private float wanderTimer;
-    public float stopWanderTime = 5;
- 
-    private Transform target;
+
+	[Header("Wandering")]
+    public float destinationReachOffset = 2;
+
+    protected bool isGoing;
     private float timer;
 	
 	
 	protected NavMeshAgent m_agent;
 	protected bool wanderCoroutine = false;
 	protected float m_baseSpeed;
+    protected Vector3 destination;
 
 	protected void Start () {
 		m_agent = GetComponent<NavMeshAgent>();
@@ -53,7 +56,8 @@ public class IA_pirate : MonoBehaviour {
 	public void GoTo(Vector3 pos, float stoppingDist = 2, float distanceOffset = 3){
 		m_agent.stoppingDistance = stoppingDist;
 		NavMeshHit navHit;
- 
+        isGoing = true;
+        destination = pos;
         if(NavMesh.SamplePosition(pos, out navHit, distanceOffset, -1)){
 			m_agent.SetDestination(navHit.position);
 		}
@@ -69,5 +73,13 @@ public class IA_pirate : MonoBehaviour {
         NavMesh.SamplePosition (randDirection, out navHit, dist, layermask);
  
         return navHit.position;
+    }
+
+    public bool CheckDestinationReached(){
+        if(Vector3.Distance(m_agent.transform.position, destination) < destinationReachOffset){
+            isGoing = false;
+            return true;
+        }
+        return false;
     }
 }

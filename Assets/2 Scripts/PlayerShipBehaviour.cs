@@ -6,25 +6,29 @@ public class PlayerShipBehaviour : FloatingShip {
 
 	private bool isDefeated;
 	[Header("Player")]
+	[Range(0, 45)] public int startCannonRot = 7;
 	public bool canMove;
 	private CanonManager m_canonsManager;
+	private healthManager m_healthManager;
 
 	new void Start()
 	{
 		base.Start();
 		
 		m_canonsManager = GetComponentInChildren<CanonManager>();
+		m_healthManager = GetComponentInChildren<healthManager>();
 		
-		m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsLeft, 15);
-		m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsRight, 15);
+		m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsLeft, startCannonRot);
+		m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsRight, startCannonRot);
+
+		
+		Anchor();
 	}
 	
 	void Update() 
 	{
-    //UserInput();
-		SailsStateUpdate();
 		TurnCabestan();
-  }
+  	}
 
 
 	void FixedUpdate()
@@ -45,6 +49,10 @@ public class PlayerShipBehaviour : FloatingShip {
 
 	public void Defeat(){
 		if(!isDefeated){
+			m_healthManager.m_lifebar.bar.gameObject.SetActive(false);
+			m_healthManager.m_impactBridge.Reset();
+			m_healthManager.m_impactNavigation.Reset();
+			m_healthManager.m_impactSails.Reset();
 			isDefeated = true;
 			canMove = false;
 			StartCoroutine("Sink");

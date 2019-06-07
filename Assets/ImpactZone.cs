@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ImpactZone : MonoBehaviour {
 
+    [Range(0,100)] public int m_impactPercentage;
     public Impact[] zone;
     public GameObject[] ImpactUI;
     public int activeImpactNb;

@@ -13,7 +13,7 @@ using UnityEngine.UI;
 [System.Serializable]
 public struct LifeElem
 {
-    public Slider lifebar;
+    public Slider bar;
     public Image ColorBar;
     public float lifePoints;
     public float MaxlifePoints;
@@ -23,7 +23,6 @@ public class healthManager : MonoBehaviour {
 
 
 	[Header("Impact zones")]
-    [Range(0,100)] public int m_impactPercentage;
     public int m_ImpactCooldown = 10;
 
     //public GameObject[] m_impactHull;
@@ -36,7 +35,7 @@ public class healthManager : MonoBehaviour {
     // public float life = 100;
 
 	[Header("LifeBars")]
-    public LifeElem[] m_lifebars;
+    public LifeElem m_lifebar;
     public Color Green;
     public Color Orange;
     public Color Red;
@@ -45,64 +44,59 @@ public class healthManager : MonoBehaviour {
 	{
         m_totalNbImpact = 0;
         //
-        for (int i = 0; i < m_lifebars.Length; i++)
-        {
-            m_lifebars[i].lifebar.maxValue = m_lifebars[i].MaxlifePoints;
-            m_lifebars[i].lifePoints = m_lifebars[i].MaxlifePoints;
-            m_lifebars[i].lifebar.value = m_lifebars[i].lifebar.maxValue;
-            m_lifebars[i].ColorBar.color = Green;
-            //m_lifebars[i].lifePoints = m_lifebars[i].MaxlifePoints;
-        }
+        m_lifebar.bar.maxValue = m_lifebar.MaxlifePoints;
+        m_lifebar.lifePoints = m_lifebar.MaxlifePoints;
+        m_lifebar.bar.value = m_lifebar.bar.maxValue;
+        m_lifebar.ColorBar.color = Green;
+        //m_lifebars[i].lifePoints = m_lifebars[i].MaxlifePoints;
 	}
 
-    public void DecreaseLife(int index, int damages){
+    public void DecreaseLife(int damages){
 
-        m_lifebars[index].lifePoints -= damages;
+        m_lifebar.lifePoints -= damages;
 
-        if(m_lifebars[index].lifePoints <= 0){
-            if(index == 0){
-                if(GetComponentInParent<EnnemyShipBehaviour>())
-                    GetComponentInParent<EnnemyShipBehaviour>().Defeat();
-                else if(GetComponentInParent<PlayerShipBehaviour>()){
-                    //m_lifebars[index].lifePoints = m_lifebars[index].MaxlifePoints;
-                    GetComponentInParent<PlayerShipBehaviour>().Defeat();
-                }
+        if(m_lifebar.lifePoints <= 0){
+            if(GetComponentInParent<EnnemyShipBehaviour>())
+                GetComponentInParent<EnnemyShipBehaviour>().Defeat();
+            else if(GetComponentInParent<PlayerShipBehaviour>()){
+                //m_lifebars[index].lifePoints = m_lifebars[index].MaxlifePoints;
+                GetComponentInParent<PlayerShipBehaviour>().Defeat();
             }
         }
 
-        refreshUIBar(index);
+        refreshUIBar();
     }
 
     public void IncreaseLife(int index, int value){
-        m_lifebars[index].lifePoints += value;
+        m_lifebar.lifePoints += value;
 
-        if(m_lifebars[index].lifePoints > m_lifebars[index].MaxlifePoints){
-            m_lifebars[index].lifePoints = m_lifebars[index].MaxlifePoints;
+        if(m_lifebar.lifePoints > m_lifebar.MaxlifePoints){
+            m_lifebar.lifePoints = m_lifebar.MaxlifePoints;
         }
 
-        refreshUIBar(index);
+        refreshUIBar();
     }
 
-    private void refreshUIBar(int index){
-        m_lifebars[index].lifebar.value = m_lifebars[index].lifePoints;
+    private void refreshUIBar(){
+        m_lifebar.bar.value = m_lifebar.lifePoints;
 
-        if(m_lifebars[index].lifePoints <=  25f/100f * m_lifebars[index].MaxlifePoints){
+        if(m_lifebar.lifePoints <=  25f/100f * m_lifebar.MaxlifePoints){
             //print("red");
-            m_lifebars[index].ColorBar.color = Red;
+            m_lifebar.ColorBar.color = Red;
         }
-        else if(m_lifebars[index].lifePoints <= 50f/100f * m_lifebars[index].MaxlifePoints){
+        else if(m_lifebar.lifePoints <= 50f/100f * m_lifebar.MaxlifePoints){
             //print("orange");
-            m_lifebars[index].ColorBar.color = Orange;
+            m_lifebar.ColorBar.color = Orange;
         }
         else{
             //print("green");
-            m_lifebars[index].ColorBar.color = Green;
+            m_lifebar.ColorBar.color = Green;
         }
     }
     
     public void SpawnImpact(ImpactZone impactZone){
         
-        if(Random.Range(0, 101) <= m_impactPercentage){
+        if(Random.Range(0, 101) <= impactZone.m_impactPercentage){
             List<Impact> unactiveImpacts = new List<Impact>();
             foreach (Impact impact in impactZone.zone)
             {

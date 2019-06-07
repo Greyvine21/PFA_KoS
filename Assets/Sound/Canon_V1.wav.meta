@@ -1,0 +1,26 @@
+fileFormatVersion: 2
+<<<<<<< HEAD:Assets/Sons/Impact/Impact_Bois_V2.wav.meta
+guid: 7ef5be5a507beab4d857d2ee4211121e
+=======
+guid: 8259a139fc19a064a8146b4a941b247e
+>>>>>>> d27de8de845cf3f269d74f6967d553b8f83f0267:Assets/Sound/Canon_V1.wav.meta
+AudioImporter:
+  externalObjects: {}
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 1
+    quality: 1
+    conversionMode: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  ambisonic: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

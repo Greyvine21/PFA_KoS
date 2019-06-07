@@ -29,6 +29,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 	//PRIVATE
 	private float DistFromObstacle;
 	private CanonManager m_canonsManager;
+	private healthManager m_healthManager;
 
 	//Target Info
 	private Transform m_Target;
@@ -42,6 +43,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 		base.Start();
 		//
 		m_canonsManager = GetComponentInChildren<CanonManager>();
+		m_healthManager = GetComponentInChildren<healthManager>();
 		//
 		if(GameObject.FindGameObjectWithTag("PlayerShip")){
 			m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
@@ -73,7 +75,6 @@ public class EnnemyShipBehaviour : FloatingShip {
 		ObstacleDetector();
 
 		SailsManagerIA();
-		SailsStateUpdate();
 		//
 		
 
@@ -157,32 +158,32 @@ public class EnnemyShipBehaviour : FloatingShip {
 			if(ObstacleDetected){
 				if(DistFromObstacle  < m_raycastRange/2){
 					m_externalSpeedMultiplier = 1f;
-					if(m_sailsSate > SailsState.sailsZeroPerCent){
+					if(m_sailsManager.m_sailsSate > SailsState.sailsZeroPerCent){
 						//print("0 % : Obstacle");
-						m_sailsSate = SailsState.sailsZeroPerCent;
+						m_sailsManager.m_sailsSate = SailsState.sailsZeroPerCent;
 					}
 				}
 				else{
 					m_externalSpeedMultiplier = 1f;
-					if(m_sailsSate > SailsState.sailsFiftyPerCent){
+					if(m_sailsManager.m_sailsSate > SailsState.sailsFiftyPerCent){
 						//print("50 % : Obstacle");
-						m_sailsSate = SailsState.sailsFiftyPerCent;
+						m_sailsManager.m_sailsSate = SailsState.sailsFiftyPerCent;
 					}
 				}
 			}
 			else{
 				if(angleFromAgent > 30){
 					m_externalSpeedMultiplier = 1f;
-					if(m_sailsSate != SailsState.sailsZeroPerCent){
+					if(m_sailsManager.m_sailsSate != SailsState.sailsZeroPerCent){
 						//print("0 % : Rotate");
-						m_sailsSate = SailsState.sailsZeroPerCent;
+						m_sailsManager.m_sailsSate = SailsState.sailsZeroPerCent;
 					}
 				}
 				else if(angleFromAgent > 20){
 					m_externalSpeedMultiplier = 1f; 
-					if(m_sailsSate != SailsState.sailsFiftyPerCent){
+					if(m_sailsManager.m_sailsSate != SailsState.sailsFiftyPerCent){
 						//print("50 % : Rotate");
-						m_sailsSate = SailsState.sailsFiftyPerCent;
+						m_sailsManager.m_sailsSate = SailsState.sailsFiftyPerCent;
 					}
 				}
 				else{
@@ -195,24 +196,24 @@ public class EnnemyShipBehaviour : FloatingShip {
 						else
 							m_externalSpeedMultiplier = 1f;*/
 
-						if(m_sailsSate != m_TargetShip.m_sailsSate){
+						if(m_sailsManager.m_sailsSate != m_TargetShip.m_sailsManager.m_sailsSate){
 							//print("copy target");
-							m_sailsSate = m_TargetShip.m_sailsSate;
+							m_sailsManager.m_sailsSate = m_TargetShip.m_sailsManager.m_sailsSate;
 						}
 					}else{
 						m_externalSpeedMultiplier = 1f;	
-						if(m_sailsSate != SailsState.sailsHundredPerCent){
+						if(m_sailsManager.m_sailsSate != SailsState.sailsHundredPerCent){
 							//print("100 %");
-							m_sailsSate = SailsState.sailsHundredPerCent;
+							m_sailsManager.m_sailsSate = SailsState.sailsHundredPerCent;
 						}
 					}
 				}
 			}
 		}
 		else{
-			if(m_sailsSate > SailsState.sailsZeroPerCent){
+			if(m_sailsManager.m_sailsSate > SailsState.sailsZeroPerCent){
 				//print("0 % : Stop");
-				m_sailsSate = SailsState.sailsZeroPerCent;
+				m_sailsManager.m_sailsSate = SailsState.sailsZeroPerCent;
 			}
 		}
 	}
@@ -298,6 +299,10 @@ public class EnnemyShipBehaviour : FloatingShip {
 
 	public void Defeat(){
 		if(!isDefeated){
+			m_healthManager.m_lifebar.bar.gameObject.SetActive(false);
+			m_healthManager.m_impactBridge.Reset();
+			m_healthManager.m_impactNavigation.Reset();
+			m_healthManager.m_impactSails.Reset();
 			isDefeated = true;
 			canMove = false;
 			canShoot = false;

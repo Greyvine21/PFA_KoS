@@ -53,23 +53,19 @@ public class Interact : MonoBehaviour {
 					if(m_player.m_isInteracting){
 						anim.SetBool("InteractAnim",false);
 						m_player.m_isInteracting = false;
-
-						if(m_lockPlayer){
-							m_player.m_receiver.m_ControllerAgent.m_agent.enabled = false;
-							m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  false;
-							m_player.m_receiver.m_ControllerAgent.transform.position =  m_snapPoint.position;
-							m_player.m_receiver.m_ControllerAgent.transform.rotation =  m_snapPoint.rotation;
-						}
-
 						isInteractZoneActive = true;
 					}
 				}
 				else{
 					if(m_lockPlayer){
-						if(m_player.m_receiver.m_ControllerAgent.transform.position != m_snapPoint.position){
+						if(m_player.m_receiver.m_ControllerAgent.m_agent.enabled)
+							m_player.m_receiver.m_ControllerAgent.m_agent.enabled = false;
+						if(m_player.m_receiver.m_ControllerAgent.m_agentCanMove)
+							m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  false;
+						if(m_player.m_receiver.m_ControllerAgent.transform.position != m_snapPoint.position)
 							m_player.m_receiver.m_ControllerAgent.transform.position =  m_snapPoint.position;
+						if(m_player.m_receiver.m_ControllerAgent.transform.rotation != m_snapPoint.rotation && m_player.m_animPlayer.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Charge")
 							m_player.m_receiver.m_ControllerAgent.transform.rotation =  m_snapPoint.rotation;
-						}
 					}
 
 					//
