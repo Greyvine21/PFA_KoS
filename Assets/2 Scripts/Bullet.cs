@@ -7,7 +7,9 @@ public class Bullet : MonoBehaviour {
 	//public bool showHit;
 	public float m_livingTime = 10;
 	public int m_damage = 5;
-	public List<string>  m_targetTag;
+	public GameObject m_impactFX_Water;
+	public GameObject m_impactFX_Wood;
+	public List<string>  m_DamageTargetList;
 	
 	void Start () 
 	{
@@ -16,35 +18,55 @@ public class Bullet : MonoBehaviour {
 	
 	void OnTriggerEnter(Collider other)
 	{
-		if(other.GetComponentInParent<EnnemyShipBehaviour>() !=  null){
-			//print("hit : " + other.name);
-			if(m_targetTag.Contains(other.GetComponentInParent<EnnemyShipBehaviour>().gameObject.tag)){
-				switch (other.tag)
-				{
-					case "HullSystem":
-						other.GetComponentInParent<healthManager>().DecreaseLife(0, m_damage);
-					break;
-					case "SailSystem":
-						other.GetComponentInParent<healthManager>().DecreaseLife(0, m_damage);
-						other.GetComponentInParent<healthManager>().DecreaseLife(1, m_damage);
-					break;
-					case "NavigationSystem":
-						other.GetComponentInParent<healthManager>().DecreaseLife(0, m_damage);
-						other.GetComponentInParent<healthManager>().DecreaseLife(2, m_damage);
-					break;
-					case "BridgeSystem":
-						other.GetComponentInParent<healthManager>().DecreaseLife(0, m_damage);
-						other.GetComponentInParent<healthManager>().DecreaseLife(3, m_damage);
-					break;
-					default:					
-					break;
+		//print(other.tag);
+		switch (other.tag)
+		{
+			case "Ocean":
+				//print("hit water");
+				if(m_impactFX_Water)
+					Instantiate(m_impactFX_Water, transform.position, Quaternion.Euler(-90,0,0));
+			break;
+			default:		
+				if(other.GetComponentInParent<EnnemyShipBehaviour>() !=  null){
+					//print("hit Enemy : " + other.name);
+					if(m_DamageTargetList.Contains(other.GetComponentInParent<EnnemyShipBehaviour>().gameObject.tag)){
+						if(m_impactFX_Wood)
+							Instantiate(m_impactFX_Wood, transform.position,Quaternion.Euler(-90,0,0));
+						Damage(other.tag, other.GetComponentInParent<healthManager>());
+					}
 				}
-			}
+				else if(other.GetComponentInParent<PlayerShipBehaviour>() !=  null){
+					//print("hit Player : " + other.name);
+					if(m_DamageTargetList.Contains(other.GetComponentInParent<PlayerShipBehaviour>().gameObject.tag)){
+						if(m_impactFX_Wood)
+							Instantiate(m_impactFX_Wood, transform.position,Quaternion.Euler(-90,0,0));
+						Damage(other.tag, other.GetComponentInParent<healthManager>());
+					}
+				}
+			break;
 		}
-		// if(m_targetTag.Contains(other.GetComponentInParent<EnnemyHumanBehaviour>().gameObject.tag)){
-
-		// }
 
 		Destroy(gameObject);
+	}
+
+	private void Damage(string tag, healthManager health){
+		
+		health.DecreaseLife(m_damage); //hull				
+		switch (tag)
+		{
+			case "HullSystem":
+			break;
+			case "SailSystem":
+				health.SpawnImpact(health.m_impactSails);
+			break;
+			case "NavigationSystem":
+				health.SpawnImpact(health.m_impactNavigation);
+			break;
+			case "BridgeSystem":
+				health.SpawnImpact(health.m_impactBridge);
+			break;
+			default:					
+			break;
+		}
 	}
 }

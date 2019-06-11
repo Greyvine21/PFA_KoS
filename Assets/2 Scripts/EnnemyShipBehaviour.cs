@@ -8,7 +8,8 @@ public class EnnemyShipBehaviour : FloatingShip {
 	public bool canMove;
 	public Transform m_navmeshBoat;
 	public Transform m_lookAgent;
-	public LayerMask m_raycastMask;
+	public LayerMask m_raycastMaskCollision;
+	public LayerMask m_raycastMaskAgent;
 	public float m_raycastRange;
 
 	[Header("IA Shoot")]
@@ -19,6 +20,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 	public Transform m_visorRight;
 
 	[Header("IA monitoring")]
+	public bool isDefeated;
 	public bool PlayerInRange;
 	public bool ObstacleDetected;
 	public float distanceFromTarget;
@@ -27,6 +29,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 	//PRIVATE
 	private float DistFromObstacle;
 	private CanonManager m_canonsManager;
+	private healthManager m_healthManager;
 
 	//Target Info
 	private Transform m_Target;
@@ -39,10 +42,13 @@ public class EnnemyShipBehaviour : FloatingShip {
 	{
 		base.Start();
 		//
-		m_canonsManager = GetComponent<CanonManager>();
+		m_canonsManager = GetComponentInChildren<CanonManager>();
+		m_healthManager = GetComponentInChildren<healthManager>();
 		//
-		m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
-		m_TargetShip = m_Target.GetComponent<PlayerShipBehaviour>();
+		if(GameObject.FindGameObjectWithTag("PlayerShip")){
+			m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
+			m_TargetShip = m_Target.GetComponent<PlayerShipBehaviour>();
+		}
 		//
 		m_boatAgent = m_navmeshBoat.GetComponent<BoatAgent>();
         
@@ -60,7 +66,8 @@ public class EnnemyShipBehaviour : FloatingShip {
 			UpdateTargetPositionAndDirection();
 		}
 		else{
-			m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
+			if(GameObject.FindGameObjectWithTag("PlayerShip"))
+				m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
 		}
 
 		//
@@ -68,7 +75,6 @@ public class EnnemyShipBehaviour : FloatingShip {
 		ObstacleDetector();
 
 		SailsManagerIA();
-		SailsStateUpdate();
 		//
 		
 
@@ -80,7 +86,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 	{
 		Float();
 		
-		if(canMove){
+		if(canMove && (m_boatAgent.m_pathOK || m_boatAgent.PlayerDetected)){
 			AddMainForce(forward);
 			TurningForce();
 		}
@@ -108,7 +114,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 		Vector3 start = transform.position + transform.forward*30;
 		float radius = 15;
 
-		if(Physics.SphereCast(start, radius, transform.forward, out hit, m_raycastRange, m_raycastMask, QueryTriggerInteraction.Ignore)){
+		if(Physics.SphereCast(start, radius, transform.forward, out hit, m_raycastRange, m_raycastMaskCollision, QueryTriggerInteraction.Ignore)){
 			if(hit.collider.gameObject.layer != 15){
 				//print(hit.collider.gameObject.name + " has been hit");
 				if(!ObstacleDetected) ObstacleDetected = true;
@@ -130,7 +136,8 @@ public class EnnemyShipBehaviour : FloatingShip {
 		Vector3 start = transform.position/* + transform.forward*30*/;
 		//float radius = 15;
 		//distanceFromAgent = Vector3.Distance(transform.position, m_navmeshBoat.position);
-		if(Physics.Raycast(start, transform.forward, out hit, Mathf.Infinity, 17, QueryTriggerInteraction.Collide)){
+		//Debug.DrawRay(start, transform.forward * 2000, Color.red);
+		if(Physics.Raycast(start, transform.forward, out hit, Mathf.Infinity, m_raycastMaskAgent, QueryTriggerInteraction.Collide)){
 			SetRotationRudder(0);
 		}
 		else
@@ -138,7 +145,6 @@ public class EnnemyShipBehaviour : FloatingShip {
 			m_lookAgent.LookAt(m_navmeshBoat.position, transform.up);
 			angleFromAgent = Mathf.Abs(Vector3.Angle(transform.forward, m_lookAgent.forward));
 
-			//Debug.DrawRay(start, transform.forward * 2000, Color.red);
 			if(angleFromAgent > 10)
 				SetRotationRudder((transform.InverseTransformDirection(m_navmeshBoat.localPosition - transform.localPosition).x > 0)? -30 : 30);
 			else
@@ -152,32 +158,32 @@ public class EnnemyShipBehaviour : FloatingShip {
 			if(ObstacleDetected){
 				if(DistFromObstacle  < m_raycastRange/2){
 					m_externalSpeedMultiplier = 1f;
-					if(m_sailsSate > SailsState.sailsZeroPerCent){
+					if(m_sailsManager.m_sailsSate > SailsState.sailsZeroPerCent){
 						//print("0 % : Obstacle");
-						m_sailsSate = SailsState.sailsZeroPerCent;
+						m_sailsManager.m_sailsSate = SailsState.sailsZeroPerCent;
 					}
 				}
 				else{
 					m_externalSpeedMultiplier = 1f;
-					if(m_sailsSate > SailsState.sailsFiftyPerCent){
+					if(m_sailsManager.m_sailsSate > SailsState.sailsFiftyPerCent){
 						//print("50 % : Obstacle");
-						m_sailsSate = SailsState.sailsFiftyPerCent;
+						m_sailsManager.m_sailsSate = SailsState.sailsFiftyPerCent;
 					}
 				}
 			}
 			else{
 				if(angleFromAgent > 30){
 					m_externalSpeedMultiplier = 1f;
-					if(m_sailsSate != SailsState.sailsZeroPerCent){
+					if(m_sailsManager.m_sailsSate != SailsState.sailsZeroPerCent){
 						//print("0 % : Rotate");
-						m_sailsSate = SailsState.sailsZeroPerCent;
+						m_sailsManager.m_sailsSate = SailsState.sailsZeroPerCent;
 					}
 				}
 				else if(angleFromAgent > 20){
 					m_externalSpeedMultiplier = 1f; 
-					if(m_sailsSate != SailsState.sailsFiftyPerCent){
+					if(m_sailsManager.m_sailsSate != SailsState.sailsFiftyPerCent){
 						//print("50 % : Rotate");
-						m_sailsSate = SailsState.sailsFiftyPerCent;
+						m_sailsManager.m_sailsSate = SailsState.sailsFiftyPerCent;
 					}
 				}
 				else{
@@ -190,46 +196,48 @@ public class EnnemyShipBehaviour : FloatingShip {
 						else
 							m_externalSpeedMultiplier = 1f;*/
 
-						if(m_sailsSate != m_TargetShip.m_sailsSate){
+						if(m_sailsManager.m_sailsSate != m_TargetShip.m_sailsManager.m_sailsSate){
 							//print("copy target");
-							m_sailsSate = m_TargetShip.m_sailsSate;
+							m_sailsManager.m_sailsSate = m_TargetShip.m_sailsManager.m_sailsSate;
 						}
 					}else{
 						m_externalSpeedMultiplier = 1f;	
-						if(m_sailsSate != SailsState.sailsHundredPerCent){
+						if(m_sailsManager.m_sailsSate != SailsState.sailsHundredPerCent){
 							//print("100 %");
-							m_sailsSate = SailsState.sailsHundredPerCent;
+							m_sailsManager.m_sailsSate = SailsState.sailsHundredPerCent;
 						}
 					}
 				}
 			}
 		}
 		else{
-			if(m_sailsSate > SailsState.sailsZeroPerCent){
+			if(m_sailsManager.m_sailsSate > SailsState.sailsZeroPerCent){
 				//print("0 % : Stop");
-				m_sailsSate = SailsState.sailsZeroPerCent;
+				m_sailsManager.m_sailsSate = SailsState.sailsZeroPerCent;
 			}
 		}
 	}
 
 	private void UpdateTargetPositionAndDirection(){
-		//Script
-		if(!m_TargetShip)
-			m_TargetShip = m_Target.GetComponent<PlayerShipBehaviour>();
-		
-		//distance
-		distanceFromTarget = Vector3.Distance(transform.position, m_Target.position);
+		if(m_Target){
+			//Script
+			if(!m_TargetShip)
+				m_TargetShip = m_Target.GetComponent<PlayerShipBehaviour>();
+			
+			//distance
+			distanceFromTarget = Vector3.Distance(transform.position, m_Target.position);
 
-		//Local position	
-		m_TargetGlobalPos = transform.InverseTransformDirection(m_Target.localPosition - transform.localPosition);
+			//Local position	
+			m_TargetGlobalPos = transform.InverseTransformDirection(m_Target.localPosition - transform.localPosition);
 
-		//Direction
-		//m_TargetDirection = m_TargetShip.m_shipVelocity;
+			//Direction
+			//m_TargetDirection = m_TargetShip.m_shipVelocity;
 
-		//DEBUG
-		//Debug.DrawRay(m_TargetPos, m_TargetDirection*10, Color.red);
-		//Debug.DrawLine(m_TargetPos - Vector3.right*10, m_TargetPos + Vector3.right*10, Color.red);
-		//Debug.DrawLine(m_TargetPos - Vector3.forward*10, m_TargetPos + Vector3.forward*10, Color.red);
+			//DEBUG
+			//Debug.DrawRay(m_TargetPos, m_TargetDirection*10, Color.red);
+			//Debug.DrawLine(m_TargetPos - Vector3.right*10, m_TargetPos + Vector3.right*10, Color.red);
+			//Debug.DrawLine(m_TargetPos - Vector3.forward*10, m_TargetPos + Vector3.forward*10, Color.red);
+		}
 	}
 
 	private void SelectCanonsSide(){
@@ -289,6 +297,18 @@ public class EnnemyShipBehaviour : FloatingShip {
 		}
 	}
 
+	public void Defeat(){
+		if(!isDefeated){
+			m_healthManager.m_lifebar.bar.gameObject.SetActive(false);
+			m_healthManager.m_impactBridge.Reset();
+			m_healthManager.m_impactNavigation.Reset();
+			m_healthManager.m_impactSails.Reset();
+			isDefeated = true;
+			canMove = false;
+			canShoot = false;
+			StartCoroutine("Sink");
+		}
+	}
 
 	// new void OnDrawGizmos()
 	// {

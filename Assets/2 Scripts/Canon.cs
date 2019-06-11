@@ -70,12 +70,10 @@ public class Canon : MonoBehaviour {
 
 	void Update()
 	{
-		if(CanonZone.isZoneActive()){
-			InputRotation();
-		}
-		else{
-			//if(isLineActive)
-				//curve.m_line.enabled = false;
+		if(CanonZone){
+			if(CanonZone.isZoneActive()){
+				InputRotation();
+			}
 		}
 
 	}
@@ -253,12 +251,13 @@ public class Canon : MonoBehaviour {
 		//Sound
 		if(m_source.priority != m_Manager.m_priority)
 			m_source.priority = m_Manager.m_priority;
-		if(m_source != null)
+		if(m_source != null && m_source.enabled)
 			m_source.PlayOneShot(m_Manager.CanonsClips[Random.Range(0, m_Manager.CanonsClips.Length)], m_Manager.m_volume);
 
 		//Play FX
-		if(point.GetChild(0).GetComponent<ParticleSystem>() != null)
-			point.GetChild(0).GetComponent<ParticleSystem>().Play(true);
+		Instantiate(m_Manager.CannonsFX, point.position, point.rotation);
+		//if(point.GetChild(0).GetComponent<ParticleSystem>() != null)
+			//point.GetChild(0).GetComponent<ParticleSystem>().Play(true);
 
 		//Add main force in Bullet
 		bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_Manager.m_bulletSpeed, ForceMode.Impulse);

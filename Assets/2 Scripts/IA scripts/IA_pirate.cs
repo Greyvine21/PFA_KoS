@@ -12,25 +12,27 @@ public enum Roles{
 
 public class IA_pirate : MonoBehaviour {
 
-	public Roles m_Role;
+	public Animator m_anim;
 
 	[Header("Wandering")]
 	public float wanderRadius = 1;
     public float wanderTimerMin = 0.2f;
     public float wanderTimerMax = 3f;
     private float wanderTimer;
-    public float stopWanderTime = 5;
-	public bool canWander = true;
- 
-    private Transform target;
+
+	[Header("Wandering")]
+    public float destinationReachOffset = 2;
+
+    protected bool isGoing;
     private float timer;
 	
 	
 	protected NavMeshAgent m_agent;
 	protected bool wanderCoroutine = false;
 	protected float m_baseSpeed;
+    protected Vector3 destination;
 
-	void Start () {
+	protected void Start () {
 		m_agent = GetComponent<NavMeshAgent>();
 
 		m_baseSpeed = m_agent.speed;
@@ -38,11 +40,10 @@ public class IA_pirate : MonoBehaviour {
         timer = wanderTimer;
 	}
  
-    // Update is called once per frame
-    protected void Update () {
+    protected void Wander(){
         timer += Time.deltaTime;
 
-        if (timer >= wanderTimer && canWander) {
+        if (timer >= wanderTimer) {
             Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
 			m_agent.enabled = true;
             m_agent.SetDestination(newPos);
@@ -51,8 +52,18 @@ public class IA_pirate : MonoBehaviour {
             timer = 0;
         }
     }
- 
-    public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask) {
+
+	public void GoTo(Vector3 pos, float stoppingDist = 2, float distanceOffset = 3){
+		m_agent.stoppingDistance = stoppingDist;
+		NavMeshHit navHit;
+        isGoing = true;
+        destination = pos;
+        if(NavMesh.SamplePosition(pos, out navHit, distanceOffset, -1)){
+			m_agent.SetDestination(navHit.position);
+		}
+	}
+
+    private static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask) {
         Vector3 randDirection = Random.insideUnitSphere * dist;
  
         randDirection += origin;
@@ -64,14 +75,11 @@ public class IA_pirate : MonoBehaviour {
         return navHit.position;
     }
 
-	protected IEnumerator StopWander(){
-		wanderCoroutine = true;
-		m_agent.enabled = false;
-
-		yield return new WaitForSeconds(stopWanderTime);
-		
-		m_agent.speed = m_baseSpeed;
-		canWander = true;
-		wanderCoroutine = false;
-	}
+    public bool CheckDestinationReached(){
+        if(Vector3.Distance(m_agent.transform.position, destination) < destinationReachOffset){
+            isGoing = false;
+            return true;
+        }
+        return false;
+    }
 }

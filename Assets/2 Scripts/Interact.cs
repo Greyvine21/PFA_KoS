@@ -7,16 +7,20 @@ public class Interact : MonoBehaviour {
 
 	public string m_text;
 	public Text m_textZone;
+	public Transform m_textWorldAnchor;
 	public Transform m_snapPoint;
+	public bool m_lockPlayer = true;
+	public bool m_toggle = true;
 
-	public Animator anim;
+	private Animator anim;
 
 	private ActionsController m_player;
 	public bool isInteractZoneActive = false;
+	public bool playerInZone = false;
 
 	void Start()
 	{
-		anim = GetComponent<Animator>();
+		anim = m_textZone.transform.GetComponent<Animator>();
 		if(m_textZone != null)
 			m_textZone.text = ": " + m_text;
 	}
@@ -29,7 +33,8 @@ public class Interact : MonoBehaviour {
 	{
 		//print(other.name);
 		if(other.gameObject.tag == "Player"){
-			anim.SetBool("InteractControl",true);
+			playerInZone = true;
+			anim.SetBool("InteractAnim",true);
 		}
 	}
 
@@ -39,35 +44,46 @@ public class Interact : MonoBehaviour {
 			//print("player in area :" + transform.parent.name);
 			if(m_player == null)
 				m_player = other.gameObject.GetComponent<ActionsController>();
-			
-			if(!isInteractZoneActive){
-				if(m_player.m_isInteracting){
-					anim.SetBool("InteractControl",false);
-					m_player.m_isInteracting = false;
 
-					m_player.m_receiver.m_ControllerAgent.m_agent.enabled = false;
-					m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  false;
-					m_player.m_receiver.m_ControllerAgent.transform.position =  m_snapPoint.position;
-					m_player.m_receiver.m_ControllerAgent.transform.rotation =  m_snapPoint.rotation;
+			m_textZone.transform.position = Camera.main.WorldToScreenPoint(m_textWorldAnchor.position);
 
-					isInteractZoneActive = true;
+			//
+			if(m_toggle){
+				if(!isInteractZoneActive){
+					if(m_player.m_isInteracting){
+						anim.SetBool("InteractAnim",false);
+						m_player.m_isInteracting = false;
+						isInteractZoneActive = true;
+					}
+				}
+				else{
+					if(m_lockPlayer){
+						if(m_player.m_receiver.m_ControllerAgent.m_agent.enabled)
+							m_player.m_receiver.m_ControllerAgent.m_agent.enabled = false;
+						if(m_player.m_receiver.m_ControllerAgent.m_agentCanMove)
+							m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  false;
+						if(m_player.m_receiver.m_ControllerAgent.transform.position != m_snapPoint.position)
+							m_player.m_receiver.m_ControllerAgent.transform.position =  m_snapPoint.position;
+						if(m_player.m_receiver.m_ControllerAgent.transform.rotation != m_snapPoint.rotation && m_player.m_animPlayer.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Charge")
+							m_player.m_receiver.m_ControllerAgent.transform.rotation =  m_snapPoint.rotation;
+					}
+
+					//
+					if(m_player.m_isInteracting){
+						anim.SetBool("InteractAnim",true);
+						m_player.m_isInteracting = false;
+
+						if(m_lockPlayer){
+							m_player.m_receiver.m_ControllerAgent.m_agent.enabled = true;
+							m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  true;
+						}
+
+						isInteractZoneActive = false;
+					}
 				}
 			}
 			else{
-				if(m_player.m_receiver.m_ControllerAgent.transform.position != m_snapPoint.position){
-					m_player.m_receiver.m_ControllerAgent.transform.position =  m_snapPoint.position;
-					m_player.m_receiver.m_ControllerAgent.transform.rotation =  m_snapPoint.rotation;
-				}
-
-				//
-				if(m_player.m_isInteracting){
-					anim.SetBool("InteractControl",true);
-					m_player.m_isInteracting = false;
-
-					m_player.m_receiver.m_ControllerAgent.m_agent.enabled = true;
-					m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  true;
-					isInteractZoneActive = false;
-				}
+				isInteractZoneActive = m_player.m_isInteracting;
 			}
 		}
 	}
@@ -75,7 +91,8 @@ public class Interact : MonoBehaviour {
 	void OnTriggerExit(Collider other)
 	{
 		if(other.gameObject.tag == "Player"){
-			anim.SetBool("InteractControl",false);
+			anim.SetBool("InteractAnim",false);
+			playerInZone = false;
 			if(isInteractZoneActive){
 				m_player.m_receiver.m_ControllerAgent.m_agent.enabled = true;
 				m_player.m_receiver.m_ControllerAgent.m_agentCanMove =  true;

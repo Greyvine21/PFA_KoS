@@ -16,6 +16,7 @@ public class CanonManager : MonoBehaviour {
     [SerializeField] [Range(0,5)] public float m_volume;
     [SerializeField] [Range(0,256)] public int m_priority = 128;
     [SerializeField] public AudioClip[] CanonsClips;
+    [SerializeField] public GameObject CannonsFX;
 
 	[Header("Canons Reload")]    
     [SerializeField] public float reloadSpeed;
@@ -54,16 +55,22 @@ public class CanonManager : MonoBehaviour {
 	// }
 
 	//shoot
-	public bool ShootCanon(Transform m_canonSide){
+	public bool ShootCanon(Transform m_canonSide, Transform gunners = null){
 
 		foreach (Transform child in m_canonSide)
 		{
 			//print("OK");
 			if(child.GetComponent<Canon>() && child.gameObject.activeSelf){
 				if(!child.GetComponent<Canon>().isLoaded){
-					//return false;
+					return false;
 				}
 				child.GetComponent<Canon>().CanonShoot();
+			}
+		}
+		if(gunners){
+			foreach (Transform gunner in gunners)
+			{
+				gunner.GetComponent<AgentController_Receiver>().m_animator.SetTrigger("Action 1");
 			}
 		}
 		return true;

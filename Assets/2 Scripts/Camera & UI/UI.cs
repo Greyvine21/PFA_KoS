@@ -31,42 +31,42 @@ public enum Contextes{
 
 public class UI : MonoBehaviour {
 
-	[Header("ordres")]		
-	[SerializeField] private Color m_textColor;
-	[SerializeField] private Color m_highlightedColor;
-	[SerializeField] private Color m_orderFailColor;
-	[SerializeField] public Orders[] m_ordres;
+	//[Header("ordres")]		
+	//[SerializeField] private Color m_textColor;
+	//[SerializeField] private Color m_highlightedColor;
+	//[SerializeField] private Color m_orderFailColor;
+	//[SerializeField] public Orders[] m_ordres;
 
-	[Header("References")]	
-	[SerializeField] private Transform m_minions;	
-	[SerializeField] private PlayerShipBehaviour m_ship;
-	[SerializeField] private Animator m_playerAnim;
-	[SerializeField] private Text m_voiceText;
-	[SerializeField] private Text m_textHaut;
-	[SerializeField] private Text m_textDroite;
-	[SerializeField] private Text m_textBas;
-	[SerializeField] private Text m_textGauche;
+	//[Header("References")]	
+	//[SerializeField] private Transform m_minions;	
+	//[SerializeField] private PlayerShipBehaviour m_ship;
+	//[SerializeField] private Animator m_playerAnim;
+	//[SerializeField] private Text m_voiceText;
+	//[SerializeField] private Text m_textHaut;
+	//[SerializeField] private Text m_textDroite;
+	//[SerializeField] private Text m_textBas;
+	//[SerializeField] private Text m_textGauche;
 
-	public EventSystem m_EventSystem;
+	//public EventSystem m_EventSystem;
 
-	private bool textCoroutine;
-    private GameObject m_lastSelected;
-	private Contextes m_contexte = Contextes.Canon;
-	private Color m_colorHighlight;
+	//private bool textCoroutine;
+    //private GameObject m_lastSelected;
+	//private Contextes m_contexte = Contextes.Canon;
+	//private Color m_colorHighlight;
 	
-	private string m_repliqueHautTemp;
-	private string m_repliqueDroiteTemp;
-	private string m_repliqueGaucheTemp;
-	private string m_repliqueBasTemp;
+	//private string m_repliqueHautTemp;
+	//private string m_repliqueDroiteTemp;
+	//private string m_repliqueGaucheTemp;
+	//private string m_repliqueBasTemp;
 
     private void Start()
     {
         //m_lastSelected = new GameObject();
 
-		m_textHaut.color = m_textColor;
-		m_textDroite.color = m_textColor; 
-		m_textBas.color = m_textColor; 
-		m_textGauche.color = m_textColor;
+		//m_textHaut.color = m_textColor;
+		//m_textDroite.color = m_textColor; 
+		//m_textBas.color = m_textColor; 
+		//m_textGauche.color = m_textColor;
 		//SelectOrder(1);
 	}
 
@@ -80,7 +80,7 @@ public class UI : MonoBehaviour {
 		
 
 //////////////////////
-		if(Input.GetButtonDown("X360_Y") && !textCoroutine){     //Haut
+		/*if(Input.GetButtonDown("X360_Y") && !textCoroutine){     //Haut
 			if(m_ship.anchorDown){
 				m_textHaut.text = m_ordres[1].Haut.order_Name[0];
 				//m_repliqueHautTemp = m_ordres[1].Haut.order_Replique[1];
@@ -98,64 +98,64 @@ public class UI : MonoBehaviour {
 		if(Input.GetButtonDown("X360_X") && !textCoroutine){	//gauche
 
 			StartCoroutine(HighlightText(m_textGauche, m_ship.OrderSailsDown()));
-		}
+		}*/
 	}
 
-	private void ContextesSelectioner(){
+	/*private void ContextesSelectioner(){
 		switch (m_contexte)
 		{
 			case Contextes.Canon:		
-				// if(Input.GetButtonDown("X360_Y") && !textCoroutine){     //Haut
-				// 	StartCoroutine(HighlightText(m_textHaut, m_repliqueHautTemp, false));
-				// } 
-				// if(Input.GetButtonDown("X360_B") && !textCoroutine){	//droite
-				// 	//m_minions.BroadcastMessage("MoveTorightCannon");
-				// 	//m_ship.BroadcastMessage("CanonReload", false, SendMessageOptions.DontRequireReceiver);
-				// 	StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, m_ship.ReloadCanonRight()));
+				if(Input.GetButtonDown("X360_Y") && !textCoroutine){     //Haut
+					StartCoroutine(HighlightText(m_textHaut, m_repliqueHautTemp, false));
+				} 
+				if(Input.GetButtonDown("X360_B") && !textCoroutine){	//droite
+					//m_minions.BroadcastMessage("MoveTorightCannon");
+					//m_ship.BroadcastMessage("CanonReload", false, SendMessageOptions.DontRequireReceiver);
+					StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, m_ship.ReloadCanonRight()));
 					
-				// }
-				// if(Input.GetButtonDown("X360_X") && !textCoroutine){	//gauche
-				// 	//m_minions.BroadcastMessage("MoveToleftCannon");
-				// 	//m_ship.BroadcastMessage("CanonReload", true, SendMessageOptions.DontRequireReceiver);
-				// 	StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, m_ship.ReloadCanonLeft()));
-				// }
+				}
+				if(Input.GetButtonDown("X360_X") && !textCoroutine){	//gauche
+					//m_minions.BroadcastMessage("MoveToleftCannon");
+					//m_ship.BroadcastMessage("CanonReload", true, SendMessageOptions.DontRequireReceiver);
+					StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, m_ship.ReloadCanonLeft()));
+				}
 			break;
 			case Contextes.Navigation:
-				// if(Input.GetButtonDown("X360_Y") && !textCoroutine){     //Haut
-				// 	if(m_ship.anchorDown){
-				// 		m_textHaut.text = m_ordres[1].Haut.order_Name[0];
-				// 		m_repliqueHautTemp = m_ordres[1].Haut.order_Replique[1];
-				// 	}else{
-				// 		m_textHaut.text = m_ordres[1].Haut.order_Name[1];
-				// 		m_repliqueHautTemp = m_ordres[1].Haut.order_Replique[0];
-				// 	}
+				if(Input.GetButtonDown("X360_Y") && !textCoroutine){     //Haut
+					if(m_ship.anchorDown){
+						m_textHaut.text = m_ordres[1].Haut.order_Name[0];
+						m_repliqueHautTemp = m_ordres[1].Haut.order_Replique[1];
+					}else{
+						m_textHaut.text = m_ordres[1].Haut.order_Name[1];
+						m_repliqueHautTemp = m_ordres[1].Haut.order_Replique[0];
+					}
 
-				// 	StartCoroutine(HighlightText(m_textHaut, m_repliqueHautTemp, m_ship.Anchor()));
-				// } 
-				// if(Input.GetButtonDown("X360_B") && !textCoroutine){	//droite
+					StartCoroutine(HighlightText(m_textHaut, m_repliqueHautTemp, m_ship.Anchor()));
+				} 
+				if(Input.GetButtonDown("X360_B") && !textCoroutine){	//droite
 
-				// 	StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, m_ship.OrderSailsUp()));
+					StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, m_ship.OrderSailsUp()));
 
-				// }
-				// if(Input.GetButtonDown("X360_X") && !textCoroutine){	//gauche
+				}
+				if(Input.GetButtonDown("X360_X") && !textCoroutine){	//gauche
 
-				// 	StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, m_ship.OrderSailsDown()));
+					StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, m_ship.OrderSailsDown()));
 
-				// }
+				}
 			break;
 			case Contextes.Matelots:
-				// if(Input.GetButtonDown("X360_Y") && !textCoroutine){     //Haut
-				// 	StartCoroutine(HighlightText(m_textHaut, m_repliqueHautTemp, false));
-				// } 
-				// if(Input.GetButtonDown("X360_B") && !textCoroutine){	//droite
-				// 	StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, false));
-				// }
-				// if(Input.GetButtonDown("X360_X") && !textCoroutine){	//gauche
-				// 	StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, false));
-				// }
+				if(Input.GetButtonDown("X360_Y") && !textCoroutine){     //Haut
+					StartCoroutine(HighlightText(m_textHaut, m_repliqueHautTemp, false));
+				} 
+				if(Input.GetButtonDown("X360_B") && !textCoroutine){	//droite
+					StartCoroutine(HighlightText(m_textDroite, m_repliqueDroiteTemp, false));
+				}
+				if(Input.GetButtonDown("X360_X") && !textCoroutine){	//gauche
+					StartCoroutine(HighlightText(m_textGauche, m_repliqueGaucheTemp, false));
+				}
 			break;
 		}
-	}
+	}*/
 
 
 	// public void SelectOrder(int ordernumber){
@@ -188,7 +188,7 @@ public class UI : MonoBehaviour {
 	// 	}
 	// }
 
-	private IEnumerator HighlightText(Text txt, /*string replique,*/ bool isOrderValid){
+	/*private IEnumerator HighlightText(Text txt, /*string replique, bool isOrderValid){
 		textCoroutine = true;
 
 		Transform transformBoxText = txt.transform.parent;
@@ -218,5 +218,5 @@ public class UI : MonoBehaviour {
 		m_voiceText.text = phrase;
 		yield return new WaitForSeconds(2f);
 		m_playerAnim.SetBool("UIbool", false);
-	}
+	}*/
 }

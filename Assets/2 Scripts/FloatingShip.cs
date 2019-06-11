@@ -9,15 +9,12 @@ public struct Buoy{
 	public bool applyGravityForce;
 }
 
-public enum SailsState{
-	sailsZeroPerCent = 0,
-	sailsFiftyPerCent,
-	sailsHundredPerCent
-}
 
 public class FloatingShip : MonoBehaviour {
 
 	#region Fields
+	[SerializeField] protected bool gizmo;
+
 	[Header("References")]
 	[SerializeField] protected Transform m_CenterOfMass;
 	[SerializeField] protected Ocean m_ocean;
@@ -30,72 +27,60 @@ public class FloatingShip : MonoBehaviour {
 	//[SerializeField] private float m_maxVelocity = 4f;
 	[SerializeField] protected Buoy[] m_buoy;
 
+	[Header("Forward force")]
+	[SerializeField] protected float m_externalSpeedMultiplier = 1;
+	[SerializeField] protected float m_forwardAcceleration;
+
 	[Header("Turning force")]
     [SerializeField] protected Transform FrontTransform;
     [SerializeField] protected Transform rudderBladeTransform;
     [SerializeField] protected Transform rudderTransform;
-    [SerializeField] protected Interact rudderInteractZone;
+    [SerializeField] public Interact m_rudderInteractZone;
     protected float rotationAngle = 30;
     [SerializeField] protected float m_turningForce;
     [SerializeField] protected float rotationRudderBlade = 2f;
 
-	[Header("Sails")]
-	[SerializeField] public SailsState m_sailsSate = SailsState.sailsZeroPerCent;
-	[SerializeField] protected float m_MaxForwardSpeed;
-	[SerializeField] protected float m_externalSpeedMultiplier = 1;
-	[SerializeField] protected float m_forwardAcceleration;
-	[SerializeField] protected Transform[] m_sails;
-	[SerializeField] protected float m_sailsUpSpeed;
-	[SerializeField] protected float m_sailsDownSpeed;
-
-	[Header("Brake")]
+	[Header("Anchor")]
+    [SerializeField] private Transform m_cabestanPivot;
+	[SerializeField] protected float m_turnSpeed_1;
+	[SerializeField] protected float m_turnSpeed_2;
+    [SerializeField] public Interact m_anchorZone;
 	[SerializeField] protected float m_brakeImpulse = 30;
 	[SerializeField] protected float m_brakeForce = 1;
 
 	[Header("Monitoring")]
 	public bool anchorDown = false;
+	[SerializeField] protected bool shipSlowingDown = false;
+	[SerializeField] protected bool anchorRising = false;
 	[SerializeField] protected float m_currentforwardSpeed;
-	[SerializeField] protected float m_waterLevel;
 	[SerializeField] public Vector3 m_shipVelocity;
+	[SerializeField] public float m_shipVelocityMagnitude;
 	#endregion Fields
 
 	#region Privates
-	protected float forward;
-	protected bool sailsGoingUp, SailsGoingDown;
-	protected bool shipSlowingDown = false;
-	protected SailsState m_sailsStateOLD;
+	public float forward;
+	protected float m_waterLevel;
     protected float RudderBladeRotation_Y = 0f;
     protected float RudderRotation_Z = 0f;
 	public Rigidbody m_shipRB;
+	public SailsManager m_sailsManager;
+
 	#endregion Privates
 
 	protected void Start()
 	{
 		m_shipRB = GetComponent<Rigidbody>();
+		m_sailsManager = GetComponentInChildren<SailsManager>();
 
-		foreach (Transform sail in m_sails)
-		{
-			switch (m_sailsSate)
-			{
-			case SailsState.sailsFiftyPerCent:
-				sail.localScale = new Vector3(1, 0.5f ,1);
-			break;
-			case SailsState.sailsHundredPerCent:
-				sail.localScale = new Vector3(1, 1 ,1);
-			break;			
-			case SailsState.sailsZeroPerCent:
-				sail.localScale = new Vector3(1, 0.04f ,1);
-			break;
-			default:
-				sail.localScale = new Vector3(1, 10 ,1);
-			break;
-			}
+		if(!m_ocean && GameObject.FindGameObjectWithTag("Ocean")){
+			m_ocean = GameObject.FindGameObjectWithTag("Ocean").GetComponent<Ocean>();
 		}
+		//m_shipRB.centerOfMass = m_CenterOfMass.position - transform.position;
 	}
 
 	//STEER	
 	#region Steer
-	protected void SteerRight(){            
+	public void SteerRight(){            
 		RudderBladeRotation_Y = rudderBladeTransform.localEulerAngles.y - rotationRudderBlade *Time.deltaTime;
 
 		if (RudderBladeRotation_Y < 360-rotationAngle && RudderBladeRotation_Y > 90f)
@@ -115,7 +100,7 @@ public class FloatingShip : MonoBehaviour {
 		rudderTransform.localEulerAngles = newRotationRudder;
 	}
 
-	protected void SteerLeft(){            
+	public void SteerLeft(){            
 		RudderBladeRotation_Y = rudderBladeTransform.localEulerAngles.y + rotationRudderBlade *Time.deltaTime;
 
 		if (RudderBladeRotation_Y > rotationAngle && RudderBladeRotation_Y < 270f)
@@ -143,134 +128,6 @@ public class FloatingShip : MonoBehaviour {
 
 	//SAILS
 	#region Sails
-	public bool OrderSailsUp(){
-		if (m_sailsSate != SailsState.sailsZeroPerCent && !sailsGoingUp)
-        {
-			m_sailsSate--;
-			return true;
-        }
-		return false;
-	}
-
-	public bool OrderSailsDown(){
-		if (m_sailsSate != SailsState.sailsHundredPerCent && !SailsGoingDown)
-        {
-			m_sailsSate++;
-			return true;
-        }
-		return false;
-	}
-
-	protected void SailsStateUpdate()
-	{
-		if(m_sailsSate != m_sailsStateOLD)
-		{
-			//print("change sails state");
-			switch (m_sailsSate)
-			{
-			case SailsState.sailsZeroPerCent:
-				forward = m_MaxForwardSpeed/5;
-				StopCoroutine("SailsDown");
-				SailsGoingDown = false;
-				StartCoroutine("SailsUp");
-			break;
-			case SailsState.sailsFiftyPerCent:
-				forward = m_MaxForwardSpeed/2;
-				if(m_sailsStateOLD > m_sailsSate)
-				{
-					StopCoroutine("SailsDown");
-					SailsGoingDown = false;
-					StartCoroutine("SailsUp");
-				}
-				else
-				{
-					StopCoroutine("SailsUp");
-					sailsGoingUp = false;
-					StartCoroutine("SailsDown");
-				}
-
-			break;
-			case SailsState.sailsHundredPerCent:
-				forward = m_MaxForwardSpeed;
-				StopCoroutine("SailsUp");
-				sailsGoingUp = false;
-				StartCoroutine("SailsDown");
-			break;
-			default:
-				AddMainForce(0);
-			break;
-			}
-			
-			m_sailsStateOLD = m_sailsSate;
-		}
-	}
-	protected IEnumerator SailsUp(){
-		sailsGoingUp = true;
-		
-		float MinScale;
-		switch (m_sailsSate)
-		{
-			case SailsState.sailsFiftyPerCent:
-				MinScale = 0.5f;
-			break;
-			case SailsState.sailsZeroPerCent:
-				MinScale = 0.04f;
-			break;
-			default:
-				MinScale = 1.5f;
-			break;
-		}
-
-		while (m_sails[0].localScale.y > MinScale)
-		{
-			foreach (Transform sail in m_sails)
-			{
-				sail.localScale -= new Vector3(0, 0.01f ,0);
-				yield return new WaitForSeconds(1/m_sailsUpSpeed);
-			}
-		}
-		
-		// foreach (Transform sail in m_sails)
-		// {
-		// 	sail.localScale = new Vector3(0, MinScale ,0);
-		// }
-
-		sailsGoingUp = false;
-	}
-
-	protected IEnumerator SailsDown(){
-		SailsGoingDown = true;
-		
-		float MaxScale;
-		switch (m_sailsSate)
-		{
-			case SailsState.sailsFiftyPerCent:
-				MaxScale = 0.5f;
-			break;
-			case SailsState.sailsHundredPerCent:
-				MaxScale = 1f;
-			break;
-			default:
-				MaxScale = 1.5f;
-			break;
-		}
-
-		while (m_sails[0].localScale.y < MaxScale)
-		{
-			foreach (Transform sail in m_sails)
-			{
-				sail.localScale += new Vector3(0, 0.05f ,0);
-				yield return new WaitForSeconds(1/m_sailsDownSpeed);
-			}
-		}
-		
-		// foreach (Transform sail in m_sails)
-		// {
-		// 	sail.localScale = new Vector3(0, MaxScale ,0);
-		// }
-
-		SailsGoingDown = false;
-	}
 	#endregion Sails
 
 	//FORCES
@@ -298,7 +155,7 @@ public class FloatingShip : MonoBehaviour {
     protected void TurningForce()
     {
         Vector3 turningForceTemp;
-		switch (m_sailsSate)
+		switch (m_sailsManager.m_sailsSate)
 		{
 			case SailsState.sailsZeroPerCent:
 				turningForceTemp = rudderBladeTransform.forward * m_turningForce * 1;
@@ -317,7 +174,7 @@ public class FloatingShip : MonoBehaviour {
 		float RudderBladeRotNormalized= (RudderBladeRotation_Y > 180) ? RudderBladeRotation_Y - 360 : RudderBladeRotation_Y;
 		if((RudderBladeRotNormalized > 5 || RudderBladeRotNormalized < -5) && !anchorDown)
 		{
-			m_shipRB.AddForceAtPosition(-turningForceTemp*0.75f, FrontTransform.position, m_force);
+			m_shipRB.AddForceAtPosition(-turningForceTemp*0.5f, FrontTransform.position, m_force);
         	Debug.DrawRay(FrontTransform.position, -turningForceTemp*10, Color.green);
 			//
 			m_shipRB.AddForceAtPosition(turningForceTemp, rudderBladeTransform.position, m_force);
@@ -342,75 +199,131 @@ public class FloatingShip : MonoBehaviour {
 
 	protected void Float()
 	{
+
 		foreach (Buoy point in m_buoy)
 		{
-			if(useOcean && m_ocean.gameObject.activeSelf){
-				m_waterLevel = m_ocean.GetWaterHeightAtLocation(point.transform.position.x, point.transform.position.y);
-			}else{
-				m_waterLevel = -3;
-			}
-
-			if(point.transform.position.y < m_waterLevel){
-				float diff = m_waterLevel - point.transform.position.y;
-				//print(point.name + " diff = "+ diff);
-				if(Mathf.Abs(diff) > m_maxFloating)
-					ApplyFloatingForce(point, m_maxFloating);
-				else
-					ApplyFloatingForce(point, Mathf.Abs(diff));
-			}
-			else{
-				if(point.applyGravityForce){
-					float diff = point.transform.position.y - m_waterLevel;
-					//print(point.name + " diff = "+ diff);
-					if(Mathf.Abs(diff)  > m_maxFloating)
-						ApplyGravityForce(point, m_maxFloating/1);
-					else
-						ApplyGravityForce(point, Mathf.Abs(diff/1) );
+			if(point.transform.gameObject.activeInHierarchy){
+				if(useOcean && m_ocean){
+					if( m_ocean.gameObject.activeInHierarchy )
+						m_waterLevel = m_ocean.GetWaterHeightAtLocation(point.transform.position.x, point.transform.position.y);
+				}else{
+					m_waterLevel = -3;
 				}
+
+				if(point.transform.position.y < m_waterLevel){
+					float diff = m_waterLevel - point.transform.position.y;
+					//print(point.name + " diff = "+ diff);
+					if(Mathf.Abs(diff) > m_maxFloating)
+						ApplyFloatingForce(point, m_maxFloating);
+					else
+						ApplyFloatingForce(point, Mathf.Abs(diff));
+				}
+				else{
+					if(point.applyGravityForce){
+						float diff = point.transform.position.y - m_waterLevel;
+						//print(point.name + " diff = "+ diff);
+						if(Mathf.Abs(diff)  > m_maxFloating)
+							ApplyGravityForce(point, m_maxFloating/1);
+						else
+							ApplyGravityForce(point, Mathf.Abs(diff/1) );
+					}
+				}
+
 			}
 		}
 		m_shipVelocity = m_shipRB.velocity;
+		m_shipVelocityMagnitude = m_shipRB.velocity.magnitude;
 
 		/*if(m_shipMagnitude > m_maxVelocity){
 			m_shipRB.velocity = Vector3.ClampMagnitude(m_shipRB.velocity, m_maxVelocity);
 		}*/
 	}
+
+	protected IEnumerator Sink(float f = 5){
+		
+		m_shipRB.drag *= 3;
+		m_shipRB.angularDrag *= 3;
+		m_buoy[1].transform.gameObject.SetActive(false);
+
+		yield return new WaitForSeconds(2);
+
+		m_buoy[2].transform.gameObject.SetActive(false);
+		m_buoy[3].transform.gameObject.SetActive(false);
+		m_buoy[4].transform.gameObject.SetActive(false);
+		m_buoy[5].transform.gameObject.SetActive(false);
+
+		yield return new WaitForSeconds(5);
+
+		m_buoy[0].transform.gameObject.SetActive(false);
+		m_buoy[6].transform.gameObject.SetActive(false);
+
+		yield return new WaitForSeconds(f);
+
+		m_shipRB.velocity = Vector3.zero;
+		m_shipRB.useGravity = false;
+		m_shipRB.constraints = RigidbodyConstraints.FreezeAll;
+	}
 	
 	//impulse
 	protected void AddImpulseAtFloatingPoint(int index, Vector3 direction, float magnitude, ForceMode force){
-		m_shipRB.AddForceAtPosition(direction*magnitude, m_buoy[index].transform.position, ForceMode.VelocityChange);
+		m_shipRB.AddForceAtPosition(direction*magnitude, m_buoy[index].transform.position, force);
 	}
 	#endregion Forces
 
 	//ANCHOR
 	#region Anchor
 	public bool Anchor(){
-		if(shipSlowingDown){
+		if(shipSlowingDown || anchorRising){
 			return false;
 		}else{
 			if(anchorDown){
-				m_shipRB.constraints = RigidbodyConstraints.None;
-				anchorDown = false;
+				StartCoroutine("RaiseAnchor");
 			}else{
-				StartCoroutine("SlowDownShip");
+				StartCoroutine("LowerAnchor");
 			}
 			return true;
 		}
 	}
 
-	protected IEnumerator SlowDownShip(){
-		shipSlowingDown = true;
-		while(m_shipRB.velocity.z > 1){
-			m_shipRB.velocity -= new Vector3(0,0,m_brakeForce);
-			AddImpulseAtFloatingPoint(0, Vector3.down, m_brakeImpulse*m_shipRB.velocity.z, m_force);
-			yield return new WaitForSeconds(0.1f);
+	protected void TurnCabestan(){
+		if(shipSlowingDown){
+			m_cabestanPivot.Rotate(0,-m_turnSpeed_1 * Time.deltaTime,0, Space.Self);
 		}
-		//AddImpulseAtFloatingPoint(0, Vector3.down, m_brakeImpulse, ForceMode.VelocityChange);
-		//m_shipRB.AddTorque(1,0,0, ForceMode.VelocityChange);
-		anchorDown = true;
-		shipSlowingDown = false;
+		else if (anchorRising){
+			m_cabestanPivot.Rotate(0,m_turnSpeed_2 * Time.deltaTime,0, Space.Self);
+		}
+	}
+
+	protected IEnumerator LowerAnchor(){
+		shipSlowingDown = true;
+
+		yield return new WaitForSeconds(3);
+		
+		/*while(m_shipVelocityMagnitude > 2){
+			m_shipRB.velocity -= new Vector3(0,0,m_brakeForce);
+			AddImpulseAtFloatingPoint(0, Vector3.down, m_brakeImpulse*m_shipVelocityMagnitude, m_force);
+			yield return new WaitForSeconds(0.1f);
+		}*/
+
+		AddImpulseAtFloatingPoint(0, Vector3.down, m_brakeImpulse, ForceMode.Impulse);
+		m_shipRB.velocity = Vector3.zero;
 		m_shipRB.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
-		//print("ship stopped");
+		anchorDown = true;
+
+		shipSlowingDown = false;
+	}
+
+	protected IEnumerator RaiseAnchor(){
+		anchorRising = true;
+
+		yield return new WaitForSeconds(3);
+
+		m_shipRB.constraints = RigidbodyConstraints.None;
+		anchorDown = false;
+
+		yield return new WaitForSeconds(3);
+
+		anchorRising = false;
 	}
 	#endregion Anchor
 	
@@ -418,25 +331,34 @@ public class FloatingShip : MonoBehaviour {
 	//DEBUG
 	protected void OnDrawGizmos()
 	{
-		//Buoy
-		Gizmos.color = Color.white;
-		foreach (Buoy point in m_buoy)
-		{
-			Gizmos.DrawWireSphere(point.transform.position, 1);
-			//Vector3 tmp = new Vector3(point.transform.position.x, m_waterLevel ,point.transform.position.z);
-			//Gizmos.DrawLine(point.transform.position, tmp);
+		if(gizmo){
+			//Buoy
+			foreach (Buoy point in m_buoy)
+			{
+				if(point.transform.gameObject.activeSelf){
+					Gizmos.color = Color.white;
+				}
+				else{
+					Gizmos.color = Color.gray;
+				}
+				Gizmos.DrawWireSphere(point.transform.position, 1);
+				//Vector3 tmp = new Vector3(point.transform.position.x, m_waterLevel ,point.transform.position.z);
+				//Gizmos.DrawLine(point.transform.position, tmp);
+			}
+			
+			//Gizmos.color = Color.magenta;
+			//if(m_shipRB)
+				//Gizmos.DrawWireSphere(m_shipRB.centerOfMass, 0.5f);
+
+			//Height
+			//Gizmos.color = Color.white;
+			//int L = 2;
+			//Gizmos.DrawLine(m_floatingHeight.position + Vector3.forward*L, m_floatingHeight.position - Vector3.forward*L);
+			//Gizmos.DrawLine(m_floatingHeight.position + Vector3.right*L, m_floatingHeight.position - Vector3.right*L);
+
+			//Velocity
+			//Gizmos.color = Color.red;
+			//Gizmos.DrawRay(transform.position, m_shipRB.velocity);
 		}
-		
-
-		//Height
-		//Gizmos.color = Color.white;
-		//int L = 2;
-		//Gizmos.DrawLine(m_floatingHeight.position + Vector3.forward*L, m_floatingHeight.position - Vector3.forward*L);
-		//Gizmos.DrawLine(m_floatingHeight.position + Vector3.right*L, m_floatingHeight.position - Vector3.right*L);
-
-		//Velocity
-		//Gizmos.color = Color.red;
-		//Gizmos.DrawRay(transform.position, m_shipRB.velocity);
-		
 	}
 }

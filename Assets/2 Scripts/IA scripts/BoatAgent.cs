@@ -14,6 +14,7 @@ public class BoatAgent : MonoBehaviour {
 
 	public EnnemyShipBehaviour m_EnnemyShip;
 	public Transform m_targetTemp;
+	public bool m_Gizmo;
 
 	[Header("State Machine")]
 	public bool m_useStateMachine;
@@ -35,6 +36,7 @@ public class BoatAgent : MonoBehaviour {
 	[Header("Monitoring value")]
 	public bool PlayerDetected;
 	public bool m_isCheckingNavmesh;
+	public bool m_pathOK;
 	public float m_distanceFromTargetPlayer;
 	public float m_distanceFromEnnemyShip;
 	public float m_agentVelocity;
@@ -54,7 +56,8 @@ public class BoatAgent : MonoBehaviour {
 	{
 		m_agent = GetComponent<NavMeshAgent>();
 		//
-		m_targetPlayer = GameObject.FindGameObjectWithTag("PlayerShip").GetComponent<PlayerShipBehaviour>();
+		if(GameObject.FindGameObjectWithTag("PlayerShip"))
+			m_targetPlayer = GameObject.FindGameObjectWithTag("PlayerShip").GetComponent<PlayerShipBehaviour>();
 	}
 
 	void OnEnable()
@@ -65,11 +68,13 @@ public class BoatAgent : MonoBehaviour {
 	void Update () 
 	{
 		//Get distances and Velocity
-		m_distanceFromTargetPlayer = Vector3.Distance(transform.position, m_TargetPlayerDestination);
 		m_distanceFromEnnemyShip = Vector3.Distance(transform.position, m_EnnemyShip.transform.position);
 		m_agentVelocity = m_agent.velocity.magnitude;
 		m_ennemyShipVelocity = m_EnnemyShip.m_shipVelocity.magnitude;
-		m_TargetPlayerVelocity = m_targetPlayer.m_shipRB.velocity.magnitude;
+		if(m_targetPlayer){
+			m_TargetPlayerVelocity = m_targetPlayer.m_shipRB.velocity.magnitude;
+			m_distanceFromTargetPlayer = Vector3.Distance(transform.position, m_TargetPlayerDestination);
+		}
 		
 		//
 		DetectTarget();
@@ -174,14 +179,14 @@ public class BoatAgent : MonoBehaviour {
 		NavMeshHit hit;
 		if (!NavMesh.SamplePosition(nextPos, out hit, 1.0f, NavMesh.AllAreas))
         {
-			print("Not On navmesh");
+			//print("Not On navmesh");
 			m_isCheckingNavmesh = true;
 			m_checkObstacleNavmesh += 20;
 			//nextPos += transform.position + m_targetPlayer.m_shipRB.velocity.normalized*20;
     	}
 		else
 		{
-			print("OK");
+			//print("OK");
 			m_isCheckingNavmesh = false;
 			m_checkObstacleNavmesh = 100;
 			m_agent.SetDestination(nextPos);
@@ -211,9 +216,10 @@ public class BoatAgent : MonoBehaviour {
 		NavMeshPath navMeshPath = new NavMeshPath();
 		m_agent.autoBraking = true;
 
-		if (m_patrolPath == null)
+		if (m_patrolPath == null || !m_patrolPath.gameObject.activeInHierarchy)
 		{
-			Debug.LogError("No path found");
+			m_pathOK = false;
+			return;
 		}
 		else
 		{
@@ -228,6 +234,7 @@ public class BoatAgent : MonoBehaviour {
 		//print(targetDestination);
 		if (targetDestination != Vector3.zero && m_agent.CalculatePath(targetDestination, navMeshPath))
 		{
+			m_pathOK = true;
 			//print("path ok");
 			m_agent.SetPath(navMeshPath);
 		}
@@ -264,18 +271,20 @@ public class BoatAgent : MonoBehaviour {
 	}
 	
 	private void DetectTarget(){
-		if(PlayerDetected){		
-			if(m_EnnemyShip.distanceFromTarget > m_chaseDistance){
-				//print(name + " is out combat");
-				m_chaseDistance /= 1.2f;
-				PlayerDetected = false;
+		if(m_targetPlayer){
+			if(PlayerDetected){		
+				if(m_EnnemyShip.distanceFromTarget > m_chaseDistance){
+					//print(name + " is out combat");
+					m_chaseDistance /= 1.2f;
+					PlayerDetected = false;
+				}
 			}
-		}
-		else{
-			if(m_EnnemyShip.distanceFromTarget < m_chaseDistance){
-				//print(name + " is in combat");
-				m_chaseDistance *= 1.2f;
-				PlayerDetected = true;
+			else{
+				if(m_EnnemyShip.distanceFromTarget < m_chaseDistance){
+					//print(name + " is in combat");
+					m_chaseDistance *= 1.2f;
+					PlayerDetected = true;
+				}
 			}
 		}
 	}
@@ -284,39 +293,41 @@ public class BoatAgent : MonoBehaviour {
 
 	void OnDrawGizmos()
 	{
-		switch (m_currentState)
-		{
-			case State.Patrol:
+		if(m_Gizmo){
+			switch (m_currentState)
 			{
-				Gizmos.color = Color.yellow;
-				Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_chaseDistance);
+				case State.Patrol:
+				{
+					Gizmos.color = Color.yellow;
+					Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_chaseDistance);
+					break;
+				}
+				case State.Chase:
+				{
+					Gizmos.color = Color.yellow;
+					Gizmos.DrawLine(m_TargetPlayerDestination - Vector3.right*5, m_TargetPlayerDestination + Vector3.right*5);
+					Gizmos.DrawLine(m_TargetPlayerDestination - Vector3.forward*5, m_TargetPlayerDestination + Vector3.forward*5);
+					Gizmos.color = Color.red;
+					Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_combatDistance);
+					break;
+				}
+				case State.Flee:
+				{
+					break;
+				}
+				case State.Combat:
+				{
+					Gizmos.color = Color.red;
+					Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_combatDistance);
+					//Gizmos.DrawLine(transform.position, m_combatDestination);
+					//Gizmos.DrawWireSphere(m_combatDestination, 10);
+					//Gizmos.color = Color.green;
+					//Gizmos.DrawRay(transform.position, m_agent.velocity*10);
+					break;
+				}
+				default: 
 				break;
 			}
-			case State.Chase:
-			{
-				Gizmos.color = Color.yellow;
-				Gizmos.DrawLine(m_TargetPlayerDestination - Vector3.right*5, m_TargetPlayerDestination + Vector3.right*5);
-				Gizmos.DrawLine(m_TargetPlayerDestination - Vector3.forward*5, m_TargetPlayerDestination + Vector3.forward*5);
-				Gizmos.color = Color.red;
-				Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_combatDistance);
-				break;
-			}
-			case State.Flee:
-			{
-				break;
-			}
-			case State.Combat:
-			{
-				Gizmos.color = Color.red;
-				Gizmos.DrawWireSphere(m_EnnemyShip.transform.position, m_combatDistance);
-				//Gizmos.DrawLine(transform.position, m_combatDestination);
-				//Gizmos.DrawWireSphere(m_combatDestination, 10);
-				//Gizmos.color = Color.green;
-				//Gizmos.DrawRay(transform.position, m_agent.velocity*10);
-				break;
-			}
-			default: 
-			break;
 		}
 	}
 }
