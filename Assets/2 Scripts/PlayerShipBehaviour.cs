@@ -55,7 +55,7 @@ public class PlayerShipBehaviour : FloatingShip {
 			m_healthManager.m_impactSails.Reset();
 			isDefeated = true;
 			canMove = false;
-			StartCoroutine("Sink");
+			StartCoroutine("Sink", 50f);
 		}
 	}
 }
