@@ -12,7 +12,7 @@ public class Mortar : MonoBehaviour
     //public GameObject FirePoint;
     public GameObject boulet;
 
-    public Transform firePointTransform;
+    //public Transform firePointTransform;
     public Transform cercleTransform;
 
     public Image imageCooldown;
