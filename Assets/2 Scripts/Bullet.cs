@@ -6,8 +6,10 @@ public class Bullet : MonoBehaviour {
 
 	//public bool showHit;
 	public float m_livingTime = 10;
-	public int m_damage = 5;
+	public bool m_heal = false;
+	public int m_value = 10;
 	public GameObject m_impactFX_Water;
+	public GameObject m_impactFX_Env;
 	public GameObject m_impactFX_Wood;
 	public List<string>  m_DamageTargetList;
 	
@@ -18,7 +20,7 @@ public class Bullet : MonoBehaviour {
 	
 	void OnTriggerEnter(Collider other)
 	{
-		//print(other.tag);
+		//print(other.name);
 		switch (other.tag)
 		{
 			case "Ocean":
@@ -26,8 +28,18 @@ public class Bullet : MonoBehaviour {
 				if(m_impactFX_Water)
 					Instantiate(m_impactFX_Water, transform.position, Quaternion.Euler(-90,0,0));
 			break;
-			default:		
-				if(other.GetComponentInParent<EnnemyShipBehaviour>() !=  null){
+			case "Environment":
+				//print("hit water");
+				if(m_impactFX_Env)
+					Instantiate(m_impactFX_Env, transform.position, Quaternion.Euler(0,0,0));
+			break;
+			default:
+				if(other.gameObject.layer != gameObject.layer){
+					if(m_impactFX_Wood)
+						Instantiate(m_impactFX_Wood, transform.position,Quaternion.Euler(-90,0,0));
+					Damage(other.tag, other.GetComponentInParent<healthManager>());
+				}		
+				/*if(other.GetComponentInParent<EnnemyShipBehaviour>() !=  null){
 					//print("hit Enemy : " + other.name);
 					if(m_DamageTargetList.Contains(other.GetComponentInParent<EnnemyShipBehaviour>().gameObject.tag)){
 						if(m_impactFX_Wood)
@@ -42,31 +54,37 @@ public class Bullet : MonoBehaviour {
 							Instantiate(m_impactFX_Wood, transform.position,Quaternion.Euler(-90,0,0));
 						Damage(other.tag, other.GetComponentInParent<healthManager>());
 					}
-				}
+				}*/
 			break;
 		}
 
-		Destroy(gameObject);
+		//Destroy(gameObject);
 	}
 
 	private void Damage(string tag, healthManager health){
 		
-		health.DecreaseLife(m_damage); //hull				
-		switch (tag)
-		{
-			case "HullSystem":
-			break;
-			case "SailSystem":
-				health.SpawnImpact(health.m_impactSails);
-			break;
-			case "NavigationSystem":
-				health.SpawnImpact(health.m_impactNavigation);
-			break;
-			case "BridgeSystem":
-				health.SpawnImpact(health.m_impactBridge);
-			break;
-			default:					
-			break;
-		}
+		if(m_heal)
+			health.IncreaseLife(m_value);
+		else
+			health.DecreaseLife(m_value);
+		//
+		if(health.m_useImpact){
+			switch (tag)
+			{
+				case "HullSystem":
+				break;
+				case "SailSystem":
+					health.SpawnImpact(health.m_impactSails);
+				break;
+				case "NavigationSystem":
+					health.SpawnImpact(health.m_impactNavigation);
+				break;
+				case "BridgeSystem":
+					health.SpawnImpact(health.m_impactBridge);
+				break;
+				default:					
+				break;
+			}
+		}	
 	}
 }

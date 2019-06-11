@@ -12,7 +12,6 @@ public class Mortar : MonoBehaviour
     //public GameObject FirePoint;
     public GameObject boulet;
 
-    public Transform firePointTransform;
     public Transform cercleTransform;
 
     public Image imageCooldown;
@@ -20,6 +19,7 @@ public class Mortar : MonoBehaviour
     bool IsCooldown;
 
     [Header("Spawn range")]
+    public int nbBullet = 10;
     public float m_y = 40;
     [Space]
     public float m_minXRange = 0;
@@ -51,28 +51,12 @@ public class Mortar : MonoBehaviour
             m_objectToDestroy = Instantiate(cercle, cercleTransform.position, cercleTransform.rotation);
             IsCooldown = true;
 
-            Vector3 aleaSpawn1 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn1, Quaternion.identity);
-            Vector3 aleaSpawn2 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn2, Quaternion.identity);
-            Vector3 aleaSpawn3 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn3, Quaternion.identity);
-            Vector3 aleaSpawn4 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn4, Quaternion.identity);
-            Vector3 aleaSpawn5 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn5, Quaternion.identity);
-            Vector3 aleaSpawn6 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn6, Quaternion.identity);
-            Vector3 aleaSpawn7 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn7, Quaternion.identity);
-            Vector3 aleaSpawn8 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn8, Quaternion.identity);
-            Vector3 aleaSpawn9 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn9, Quaternion.identity);
-            Vector3 aleaSpawn10 = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-            Instantiate(boulet, aleaSpawn10, Quaternion.identity);
+            for (int i = 0; i < nbBullet; i++)
+            {            
+                Vector3 aleaSpawn = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
+                Instantiate(boulet, aleaSpawn, Quaternion.identity);
+            }
             OnDestroy();
-
         }
 
         if (IsCooldown == true)

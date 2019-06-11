@@ -254,7 +254,7 @@ public class ActionsController : MonoBehaviour {
         //
         StartCoroutine(m_minions.SendActionDone(m_minions.m_sailorsRepairTab));
         //
-        m_shiphealth.IncreaseLife(0, (int)((m_HealPercentage/100) * m_shiphealth.m_lifebar.MaxlifePoints));
+        m_shiphealth.IncreaseLife((int)((m_HealPercentage/100) * m_shiphealth.m_lifebar.MaxlifePoints));
         m_shiphealth.m_totalNbImpact --;
         //
         impact.DisableImpact(true);

@@ -20,6 +20,7 @@ public class Interact : MonoBehaviour {
 
 	void Start()
 	{
+		
 		anim = m_textZone.transform.GetComponent<Animator>();
 		if(m_textZone != null)
 			m_textZone.text = ": " + m_text;

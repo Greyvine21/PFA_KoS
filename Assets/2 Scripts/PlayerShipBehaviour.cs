@@ -18,8 +18,11 @@ public class PlayerShipBehaviour : FloatingShip {
 		m_canonsManager = GetComponentInChildren<CanonManager>();
 		m_healthManager = GetComponentInChildren<healthManager>();
 		
-		m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsLeft, startCannonRot);
-		m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsRight, startCannonRot);
+		if(m_canonsManager){
+			m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsLeft, startCannonRot);
+			m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsRight, startCannonRot);
+
+		}
 
 		
 		Anchor();

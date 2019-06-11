@@ -76,7 +76,6 @@ public class EnnemyShipBehaviour : FloatingShip {
 
 		SailsManagerIA();
 		//
-		
 
 		//if(m_boatAgent.PlayerDetected)
 			SelectCanonsSide();

@@ -247,6 +247,7 @@ public class Canon : MonoBehaviour {
 		//Spawn bullet
 		GameObject bullet = Instantiate(m_Manager.m_canonBall, point.position, point.rotation, null);
 		bullet.name = "CanonBall";
+		bullet.layer = m_Manager.m_damageLayer;
 
 		//Sound
 		if(m_source.priority != m_Manager.m_priority)
@@ -265,15 +266,15 @@ public class Canon : MonoBehaviour {
 
 		//Add secondary force in Bullet and Recoil		
 		
-		//transform.GetComponentInParent<Rigidbody>().AddForceAtPosition(-bullet.transform.forward * m_ship.m_bulletSpeed * m_ship.m_ForceCanonMultiplier, transform.position, ForceMode.Acceleration);
-		if(m_Left){			
-			transform.GetComponentInParent<Rigidbody>().AddTorque(-GetComponentInParent<FloatingShip>().transform.forward * m_Manager.m_bulletSpeed * m_Manager.m_ForceCanonMultiplier, ForceMode.Acceleration);
-
-			//bullet.GetComponent<ConstantForce>().force = new Vector3(transform.GetComponentInParent<Rigidbody>().velocity.magnitude, 0,0);
-		}else{
-			transform.GetComponentInParent<Rigidbody>().AddTorque(GetComponentInParent<FloatingShip>().transform.forward * m_Manager.m_bulletSpeed * m_Manager.m_ForceCanonMultiplier, ForceMode.Acceleration);
-
-			//bullet.GetComponent<ConstantForce>().force = new Vector3(-transform.GetComponentInParent<Rigidbody>().velocity.magnitude, 0,0);
+		if(transform.GetComponentInParent<Rigidbody>()){
+			//transform.GetComponentInParent<Rigidbody>().AddForceAtPosition(-bullet.transform.forward * m_ship.m_bulletSpeed * m_ship.m_ForceCanonMultiplier, transform.position, ForceMode.Acceleration);
+			if(m_Left){			
+				transform.GetComponentInParent<Rigidbody>().AddTorque(-GetComponentInParent<FloatingShip>().transform.forward * m_Manager.m_bulletSpeed * m_Manager.m_ForceCanonMultiplier, ForceMode.Acceleration);
+				//bullet.GetComponent<ConstantForce>().force = new Vector3(transform.GetComponentInParent<Rigidbody>().velocity.magnitude, 0,0);
+			}else{
+				transform.GetComponentInParent<Rigidbody>().AddTorque(GetComponentInParent<FloatingShip>().transform.forward * m_Manager.m_bulletSpeed * m_Manager.m_ForceCanonMultiplier, ForceMode.Acceleration);
+				//bullet.GetComponent<ConstantForce>().force = new Vector3(-transform.GetComponentInParent<Rigidbody>().velocity.magnitude, 0,0);
+			}
 		}
 	}
 }

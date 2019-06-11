@@ -10,6 +10,7 @@ public class CanonManager : MonoBehaviour {
 	[SerializeField] public Transform m_canonsLeft;
 
 	[Header("Canons Shoot")]
+    [SerializeField] public int m_damageLayer = 20;
     [SerializeField] public float m_bulletSpeed;
     [SerializeField] public float m_ForceCanonMultiplier;
     [SerializeField] public GameObject m_canonBall;

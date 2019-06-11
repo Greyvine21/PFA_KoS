@@ -23,6 +23,7 @@ public class healthManager : MonoBehaviour {
 
 
 	[Header("Impact zones")]
+    public bool m_useImpact = true;
     public int m_ImpactCooldown = 10;
 
     //public GameObject[] m_impactHull;
@@ -59,7 +60,6 @@ public class healthManager : MonoBehaviour {
             if(GetComponentInParent<EnnemyShipBehaviour>())
                 GetComponentInParent<EnnemyShipBehaviour>().Defeat();
             else if(GetComponentInParent<PlayerShipBehaviour>()){
-                //m_lifebars[index].lifePoints = m_lifebars[index].MaxlifePoints;
                 GetComponentInParent<PlayerShipBehaviour>().Defeat();
             }
         }
@@ -67,7 +67,7 @@ public class healthManager : MonoBehaviour {
         refreshUIBar();
     }
 
-    public void IncreaseLife(int index, int value){
+    public void IncreaseLife(int value){
         m_lifebar.lifePoints += value;
 
         if(m_lifebar.lifePoints > m_lifebar.MaxlifePoints){
