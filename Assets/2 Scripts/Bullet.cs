@@ -20,7 +20,7 @@ public class Bullet : MonoBehaviour {
 	
 	void OnTriggerEnter(Collider other)
 	{
-		//print(other.name);
+		print(other.name + "  " + other.gameObject.layer);
 		switch (other.tag)
 		{
 			case "Ocean":
@@ -38,7 +38,7 @@ public class Bullet : MonoBehaviour {
 					if(m_impactFX_Wood)
 						Instantiate(m_impactFX_Wood, transform.position,Quaternion.Euler(-90,0,0));
 					Damage(other.tag, other.GetComponentInParent<healthManager>());
-				}		
+				}
 				/*if(other.GetComponentInParent<EnnemyShipBehaviour>() !=  null){
 					//print("hit Enemy : " + other.name);
 					if(m_DamageTargetList.Contains(other.GetComponentInParent<EnnemyShipBehaviour>().gameObject.tag)){

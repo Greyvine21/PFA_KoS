@@ -54,7 +54,9 @@ public class Mortar : MonoBehaviour
             for (int i = 0; i < nbBullet; i++)
             {            
                 Vector3 aleaSpawn = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-                Instantiate(boulet, aleaSpawn, Quaternion.identity);
+                GameObject bullet = Instantiate(boulet, aleaSpawn, Quaternion.identity);
+		        bullet.name = "CanonBall mortar";
+		        bullet.layer = 21;
             }
             OnDestroy();
         }

@@ -246,7 +246,7 @@ public class Canon : MonoBehaviour {
 
 		//Spawn bullet
 		GameObject bullet = Instantiate(m_Manager.m_canonBall, point.position, point.rotation, null);
-		bullet.name = "CanonBall";
+		bullet.name = "CanonBall " + m_Manager.transform.parent.name;
 		bullet.layer = m_Manager.m_damageLayer;
 
 		//Sound
