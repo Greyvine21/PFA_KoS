@@ -36,6 +36,7 @@ public class IA_pirate_Sailor : IA_pirate {
 					m_state = SailorState.Go;
 				}
 				else if(ActionDone){
+					//print("Done");
 					ActionDone = false;
 					m_anim.SetBool("Action", false);
 					m_state = SailorState.Wander;

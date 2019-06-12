@@ -20,6 +20,7 @@ public class Interact : MonoBehaviour {
 
 	void Start()
 	{
+		
 		anim = m_textZone.transform.GetComponent<Animator>();
 		if(m_textZone != null)
 			m_textZone.text = ": " + m_text;
@@ -45,6 +46,7 @@ public class Interact : MonoBehaviour {
 			if(m_player == null)
 				m_player = other.gameObject.GetComponent<ActionsController>();
 
+			m_textZone.text = ": " + m_text;
 			m_textZone.transform.position = Camera.main.WorldToScreenPoint(m_textWorldAnchor.position);
 
 			//
