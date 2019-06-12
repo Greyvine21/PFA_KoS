@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<< HEAD:Assets/Sons/Ancre/Ancre_Lacher_V1.wav.meta
-guid: 16d659ba405e6ea468ffc65c717789b1
-=======
-guid: b455b39f931c19447941d3976612794c
->>>>>>> d27de8de845cf3f269d74f6967d553b8f83f0267:Assets/Sound/Footstep/Footsteps_01.wav.meta
+guid: 817b9c484a1bbfe42ac7d97f29b8c116
 AudioImporter:
   externalObjects: {}
   serializedVersion: 6
