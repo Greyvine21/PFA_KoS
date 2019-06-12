@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class EnnemyShipBehaviour : FloatingShip {
 
+
 	[Header("IA movement")]
+	public GameObject m_skull;
 	public bool canMove;
 	public Transform m_navmeshBoat;
 	public Transform m_lookAgent;
@@ -44,6 +46,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 		//
 		m_canonsManager = GetComponentInChildren<CanonManager>();
 		m_healthManager = GetComponentInChildren<healthManager>();
+		m_healthManager.OnLifeReachZero += Defeat;
 		//
 		if(GameObject.FindGameObjectWithTag("PlayerShip")){
 			m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
@@ -51,13 +54,19 @@ public class EnnemyShipBehaviour : FloatingShip {
 		}
 		//
 		m_boatAgent = m_navmeshBoat.GetComponent<BoatAgent>();
+		
+		m_skull.SetActive(false);
         
 		m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsLeft, 20);
 		m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsRight, 20);
 
 		UpdateTargetPositionAndDirection();
 	}
-	
+
+	void OnDisable()
+	{
+		m_healthManager.OnLifeReachZero -= Defeat;
+	}
 
 	void Update () 
 	{
@@ -77,7 +86,7 @@ public class EnnemyShipBehaviour : FloatingShip {
 		SailsManagerIA();
 		//
 
-		//if(m_boatAgent.PlayerDetected)
+		if(m_boatAgent.PlayerDetected)
 			SelectCanonsSide();
 	}
 
@@ -296,16 +305,18 @@ public class EnnemyShipBehaviour : FloatingShip {
 		}
 	}
 
-	public void Defeat(){
+	public void Defeat(object sender){
 		if(!isDefeated){
 			m_healthManager.m_lifebar.bar.gameObject.SetActive(false);
+			
+			m_skull.SetActive(true);
 			m_healthManager.m_impactBridge.Reset();
 			m_healthManager.m_impactNavigation.Reset();
 			m_healthManager.m_impactSails.Reset();
 			isDefeated = true;
 			canMove = false;
 			canShoot = false;
-			StartCoroutine("Sink");
+			StartCoroutine("Sink", 5);
 		}
 	}
 

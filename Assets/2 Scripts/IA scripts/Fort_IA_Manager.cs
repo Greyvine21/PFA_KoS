@@ -4,24 +4,38 @@ using UnityEngine;
 
 public class Fort_IA_Manager : MonoBehaviour {
 
+	public GameObject m_skull;
 	public bool canShoot;
 	public Transform m_visor;
 	public float RangeRotationRight = 30;
 	public float RangeFactor = 40.5f;
 	public float m_rotationOffset = 10;
+    public GameObject imageUI;
 	public bool PlayerInRange;
 	public float distanceFromTarget;
 	private Transform m_Target;
 	private Vector3 m_TargetGlobalPos;
 	private CanonManager m_canonsManager;
+	private healthManager m_healthManager;
+	private Mortar m_mortar;
 
 
 	// Use this for initialization
 	void Start () {
 		m_canonsManager = GetComponentInChildren<CanonManager>();
+		m_mortar = GetComponentInChildren<Mortar>();
+		m_healthManager = GetComponentInChildren<healthManager>();
+		m_healthManager.OnLifeReachZero += Defeat;
+		m_skull.SetActive(false);
+
 		if(GameObject.FindGameObjectWithTag("PlayerShip")){
 			m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
 		}
+	}
+
+	void OnDisable()
+	{
+		m_healthManager.OnLifeReachZero -= Defeat;
 	}
 	
 	// Update is called once per frame
@@ -76,5 +90,14 @@ public class Fort_IA_Manager : MonoBehaviour {
 			m_canonsManager.ShootCanon(side);
 			m_canonsManager.ReloadCanon(side);
 		}
+	}
+
+	public void Defeat(object sender){
+		
+		m_healthManager.m_lifebar.bar.gameObject.SetActive(false);
+		m_skull.SetActive(true);
+		canShoot = false;
+		imageUI.SetActive(false);
+		m_mortar.canShoot = false;
 	}
 }

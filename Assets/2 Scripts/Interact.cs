@@ -46,6 +46,7 @@ public class Interact : MonoBehaviour {
 			if(m_player == null)
 				m_player = other.gameObject.GetComponent<ActionsController>();
 
+			m_textZone.text = ": " + m_text;
 			m_textZone.transform.position = Camera.main.WorldToScreenPoint(m_textWorldAnchor.position);
 
 			//

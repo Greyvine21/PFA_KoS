@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Mortar : MonoBehaviour
 {
+    public bool canShoot;
     public AudioSource mortar;
     public ParticleSystem explosion;
 
@@ -13,7 +14,6 @@ public class Mortar : MonoBehaviour
     public GameObject boulet;
 
     public Transform cercleTransform;
-
     public Image imageCooldown;
     public float cooldown;
     bool IsCooldown;
@@ -42,34 +42,37 @@ public class Mortar : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        if (IsCooldown == false)
-        {
-            explosion.Play();
-            mortar.Play();
-
-            //m_firePointToDestroy = Instantiate(FirePoint, firePointTransform.position, firePointTransform.rotation);
-            m_objectToDestroy = Instantiate(cercle, cercleTransform.position, cercleTransform.rotation);
-            IsCooldown = true;
-
-            for (int i = 0; i < nbBullet; i++)
-            {            
-                Vector3 aleaSpawn = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y, cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
-                GameObject bullet = Instantiate(boulet, aleaSpawn, Quaternion.identity);
-		        bullet.name = "CanonBall mortar";
-		        bullet.layer = 21;
-            }
-            OnDestroy();
-        }
-
-        if (IsCooldown == true)
-        {
-            //StopCoroutine("Mortier");
-            imageCooldown.fillAmount += 1 / cooldown * Time.deltaTime;
-
-            if (imageCooldown.fillAmount >= 1)
+        if(canShoot){
+            if (IsCooldown == false)
             {
+                explosion.Play();
+                mortar.Play();
+                
                 imageCooldown.fillAmount = 0;
-                IsCooldown = false;
+                //m_firePointToDestroy = Instantiate(FirePoint, firePointTransform.position, firePointTransform.rotation);
+                m_objectToDestroy = Instantiate(cercle, cercleTransform.position, Quaternion.identity);
+                IsCooldown = true;
+
+                for (int i = 0; i < nbBullet; i++)
+                {            
+                    Vector3 aleaSpawn = new Vector3(cercleTransform.position.x + GetSpawnRange(m_minXRange, m_maxXRange), cercleTransform.position.y + m_y + GetSpawnRange(0, 10), cercleTransform.position.z + GetSpawnRange(m_minZRange, m_maxZRange));
+                    GameObject bullet = Instantiate(boulet, aleaSpawn, Quaternion.identity);
+                    bullet.name = "CanonBall mortar";
+                    bullet.layer = 21;
+                }
+                OnDestroy();
+            }
+
+            if (IsCooldown == true)
+            {
+                //StopCoroutine("Mortier");
+                imageCooldown.fillAmount += 1 / cooldown * Time.deltaTime;
+
+                if (imageCooldown.fillAmount >= 1)
+                {
+                    imageCooldown.fillAmount = 0;
+                    IsCooldown = false;
+                }
             }
         }
 	}

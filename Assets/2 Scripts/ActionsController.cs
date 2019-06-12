@@ -208,7 +208,7 @@ public class ActionsController : MonoBehaviour {
         m_receiver.m_ControllerAgent.m_agentCanMove = false;
         m_receiver.m_ControllerAgent.m_agent.velocity = Vector3.zero;
 
-        m_receiver.m_ControllerAgent.transform.rotation = m_ship.transform.rotation * Quaternion.Euler(0,left? -90 : 90,0);
+        m_receiver.m_ControllerAgent.transform.localRotation = Quaternion.Euler(0,left? -90 : 90,0);
 
         //StartCoroutine(CameraShake.Shake(m_shootShakeDuration, m_shootShakeMagnitude));
         m_animPlayer.Play("Charge");

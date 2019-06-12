@@ -60,7 +60,7 @@ public class FloatingShip : MonoBehaviour {
 	#region Privates
 	public float forward;
 	protected float m_waterLevel;
-    protected float RudderBladeRotation_Y = 0f;
+    public float RudderBladeRotation_Y = 0f;
     protected float RudderRotation_Z = 0f;
 	public Rigidbody m_shipRB;
 	public SailsManager m_sailsManager;
@@ -259,9 +259,9 @@ public class FloatingShip : MonoBehaviour {
 
 		yield return new WaitForSeconds(f);
 
-		m_shipRB.velocity = Vector3.zero;
-		m_shipRB.useGravity = false;
-		m_shipRB.constraints = RigidbodyConstraints.FreezeAll;
+		//m_shipRB.velocity = Vector3.zero;
+		//m_shipRB.useGravity = false;
+		//m_shipRB.constraints = RigidbodyConstraints.FreezeAll;
 	}
 	
 	//impulse

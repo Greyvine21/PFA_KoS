@@ -40,6 +40,14 @@ public class healthManager : MonoBehaviour {
     public Color Green;
     public Color Orange;
     public Color Red;
+    
+	public delegate void LifeReachZero(object sender);
+	public event LifeReachZero OnLifeReachZero;
+	public void CallOnLifeReachZero(){
+		if(OnLifeReachZero != null){
+			OnLifeReachZero(this);
+		}
+	}
 
 	void Start()
 	{
@@ -57,11 +65,12 @@ public class healthManager : MonoBehaviour {
         m_lifebar.lifePoints -= damages;
 
         if(m_lifebar.lifePoints <= 0){
-            if(GetComponentInParent<EnnemyShipBehaviour>())
+            CallOnLifeReachZero();
+            /*if(GetComponentInParent<EnnemyShipBehaviour>())
                 GetComponentInParent<EnnemyShipBehaviour>().Defeat();
             else if(GetComponentInParent<PlayerShipBehaviour>()){
                 GetComponentInParent<PlayerShipBehaviour>().Defeat();
-            }
+            }*/
         }
 
         refreshUIBar();

@@ -7,14 +7,8 @@ public class Limite : MonoBehaviour
     public Animator limite;
 
     public int startCounter = 0;
-	// Use this for initialization
+    
 	void Start ()
-    {
-		
-	}
-	
-	// Update is called once per frame
-	void Update ()
     {
         StartCoroutine("TheLimit");
 	}

@@ -12,15 +12,18 @@ public class Bullet : MonoBehaviour {
 	public GameObject m_impactFX_Env;
 	public GameObject m_impactFX_Wood;
 	public List<string>  m_DamageTargetList;
+	private Collider m_collider;
 	
 	void Start () 
 	{
 		Destroy(gameObject, m_livingTime);
+		m_collider = GetComponent<Collider>();
 	}
 	
 	void OnTriggerEnter(Collider other)
 	{
-		print(other.name + "  " + other.gameObject.layer);
+		m_collider.enabled = false;
+		//print(other.name + "  " + other.gameObject.layer);
 		switch (other.tag)
 		{
 			case "Ocean":
@@ -34,39 +37,28 @@ public class Bullet : MonoBehaviour {
 					Instantiate(m_impactFX_Env, transform.position, Quaternion.Euler(0,0,0));
 			break;
 			default:
-				if(other.gameObject.layer != gameObject.layer){
-					if(m_impactFX_Wood)
-						Instantiate(m_impactFX_Wood, transform.position,Quaternion.Euler(-90,0,0));
-					Damage(other.tag, other.GetComponentInParent<healthManager>());
+				if(m_heal){
+					if(other.GetComponentInParent<healthManager>()){
+						Heal(other.GetComponentInParent<healthManager>());
+						if(m_impactFX_Wood)
+							Instantiate(m_impactFX_Wood, transform.position,Quaternion.Euler(-90,0,0));
+					}
 				}
-				/*if(other.GetComponentInParent<EnnemyShipBehaviour>() !=  null){
-					//print("hit Enemy : " + other.name);
-					if(m_DamageTargetList.Contains(other.GetComponentInParent<EnnemyShipBehaviour>().gameObject.tag)){
+				else{
+					if(other.gameObject.layer != gameObject.layer){
 						if(m_impactFX_Wood)
 							Instantiate(m_impactFX_Wood, transform.position,Quaternion.Euler(-90,0,0));
 						Damage(other.tag, other.GetComponentInParent<healthManager>());
 					}
 				}
-				else if(other.GetComponentInParent<PlayerShipBehaviour>() !=  null){
-					//print("hit Player : " + other.name);
-					if(m_DamageTargetList.Contains(other.GetComponentInParent<PlayerShipBehaviour>().gameObject.tag)){
-						if(m_impactFX_Wood)
-							Instantiate(m_impactFX_Wood, transform.position,Quaternion.Euler(-90,0,0));
-						Damage(other.tag, other.GetComponentInParent<healthManager>());
-					}
-				}*/
 			break;
 		}
-
-		//Destroy(gameObject);
+		Destroy(gameObject);
 	}
 
 	private void Damage(string tag, healthManager health){
 		
-		if(m_heal)
-			health.IncreaseLife(m_value);
-		else
-			health.DecreaseLife(m_value);
+		health.DecreaseLife(m_value);
 		//
 		if(health.m_useImpact){
 			switch (tag)
@@ -86,5 +78,9 @@ public class Bullet : MonoBehaviour {
 				break;
 			}
 		}	
+	}
+
+	private void Heal(healthManager health){
+		health.IncreaseLife(m_value);	
 	}
 }
