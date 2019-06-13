@@ -3,14 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class SettingsMenu : MonoBehaviour
 {
+    public EventSystem m_evSys;
+    //public GameObject m_optionButton;
+    //public GameObject m_playButton;
+    private GameObject m_lastSelected;
     public AudioMixer audioMixer;
 
     public Dropdown resolutionDropdown;
 
     Resolution[] resolutions;
+    public int Carte = 0;
+    public int Credits = 0;
+
+    public void PlayCarte ()
+    {
+        SceneManager.LoadScene(Carte);
+    }
+    public void goCredits ()
+    {
+        SceneManager.LoadScene(Credits);
+    }
+
+    public void QuitGame ()
+    {
+        Application.Quit();
+    }
 
     public void SetResolution (int resolutionIndex)
     {
@@ -31,6 +53,20 @@ public class SettingsMenu : MonoBehaviour
     public void SetFullscreen (bool isFullscreen)
     {
         Screen.fullScreen = isFullscreen;
+    }
+
+    public void LockCursor(bool b){
+        if(b)     
+            Cursor.lockState = CursorLockMode.Locked;
+        else
+            Cursor.lockState = CursorLockMode.None;
+
+        print(b);
+        Cursor.visible = b;
+    }
+
+    public void selectButton(GameObject go){
+        m_evSys.SetSelectedGameObject(go);
     }
 
     private void Start()
@@ -57,5 +93,15 @@ public class SettingsMenu : MonoBehaviour
         resolutionDropdown.AddOptions(options);
         resolutionDropdown.value = currentResolutionIndex;
         resolutionDropdown.RefreshShownValue();
+
+        LockCursor(true);
     }
+
+     void Update ()
+    {
+        if (m_evSys.currentSelectedGameObject == null)
+            m_evSys.SetSelectedGameObject(m_lastSelected);
+        else
+            m_lastSelected = m_evSys.currentSelectedGameObject;
+	}
 }

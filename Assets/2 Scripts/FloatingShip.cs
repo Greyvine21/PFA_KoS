@@ -126,10 +126,6 @@ public class FloatingShip : MonoBehaviour {
 	}
 	#endregion Steer
 
-	//SAILS
-	#region Sails
-	#endregion Sails
-
 	//FORCES
 	#region Forces
 	protected void AddMainForce(float maxSpeed)

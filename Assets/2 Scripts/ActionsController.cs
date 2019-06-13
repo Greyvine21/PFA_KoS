@@ -61,6 +61,9 @@ public class ActionsController : MonoBehaviour {
         //
         m_receiver = GetComponent<AgentController_Receiver>();
         m_animPlayer = m_receiver.m_animator;
+ 
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
 	}
 	
 	// Update is called once per frame

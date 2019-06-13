@@ -25,7 +25,9 @@ public class Fort_IA_Manager : MonoBehaviour {
 		m_canonsManager = GetComponentInChildren<CanonManager>();
 		m_mortar = GetComponentInChildren<Mortar>();
 		m_healthManager = GetComponentInChildren<healthManager>();
-		m_healthManager.OnLifeReachZero += Defeat;
+		if(m_healthManager)
+			m_healthManager.OnLifeReachZero += Defeat;
+
 		m_skull.SetActive(false);
 
 		if(GameObject.FindGameObjectWithTag("PlayerShip")){
@@ -35,7 +37,8 @@ public class Fort_IA_Manager : MonoBehaviour {
 
 	void OnDisable()
 	{
-		m_healthManager.OnLifeReachZero -= Defeat;
+		if(m_healthManager)
+			m_healthManager.OnLifeReachZero -= Defeat;
 	}
 	
 	// Update is called once per frame
@@ -93,7 +96,7 @@ public class Fort_IA_Manager : MonoBehaviour {
 	}
 
 	public void Defeat(object sender){
-		
+
 		m_healthManager.m_lifebar.bar.gameObject.SetActive(false);
 		m_skull.SetActive(true);
 		canShoot = false;
