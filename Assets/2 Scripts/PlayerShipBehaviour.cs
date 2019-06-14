@@ -17,7 +17,8 @@ public class PlayerShipBehaviour : FloatingShip {
 		
 		m_canonsManager = GetComponentInChildren<CanonManager>();
 		m_healthManager = GetComponentInChildren<healthManager>();
-		m_healthManager.OnLifeReachZero += Defeat;
+		if(m_healthManager)
+			m_healthManager.OnLifeReachZero += Defeat;
 		
 		if(m_canonsManager){
 			m_canonsManager.SetAngleCanonUP(m_canonsManager.m_canonsLeft, startCannonRot);
@@ -30,7 +31,8 @@ public class PlayerShipBehaviour : FloatingShip {
 	
 	void OnDisable()
 	{
-		m_healthManager.OnLifeReachZero -= Defeat;
+		if(m_healthManager)
+			m_healthManager.OnLifeReachZero -= Defeat;
 	}
 
 	void Update() 

@@ -46,7 +46,8 @@ public class EnnemyShipBehaviour : FloatingShip {
 		//
 		m_canonsManager = GetComponentInChildren<CanonManager>();
 		m_healthManager = GetComponentInChildren<healthManager>();
-		m_healthManager.OnLifeReachZero += Defeat;
+		if(m_healthManager)
+			m_healthManager.OnLifeReachZero += Defeat;
 		//
 		if(GameObject.FindGameObjectWithTag("PlayerShip")){
 			m_Target = GameObject.FindGameObjectWithTag("PlayerShip").transform;
@@ -65,7 +66,8 @@ public class EnnemyShipBehaviour : FloatingShip {
 
 	void OnDisable()
 	{
-		m_healthManager.OnLifeReachZero -= Defeat;
+		if(m_healthManager)
+			m_healthManager.OnLifeReachZero -= Defeat;
 	}
 
 	void Update () 
