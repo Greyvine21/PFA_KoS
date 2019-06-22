@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class ActionsController : MonoBehaviour {
+public class ActionsController : MonoBehaviour
+{
 
     [SerializeField] private MinionsManager m_minions;
 
@@ -23,71 +25,76 @@ public class ActionsController : MonoBehaviour {
     //[SerializeField] private GameObject m_Bullet;
 
     [Header("Repair")]
-	public float m_repairDuration = 4;
-	public float m_KeepValueDuration = 4;
-	[Range(0,100)] public float m_HealPercentage = 10;
-	public float RaycastMaxDistance = 100;
-	public LayerMask m_raycastLayers; //19
-	public GameObject m_repairText;
-	public Slider m_repairSlider;
+    public float m_repairDuration = 4;
+    public float m_KeepValueDuration = 4;
+    [Range(0, 100)] public float m_HealPercentage = 10;
+    public float RaycastMaxDistance = 100;
+    public LayerMask m_raycastLayers; //19
+    public GameObject m_repairText;
+    public Slider m_repairSlider;
 
     [Header("Monitoring")]
-	public bool isRaycastImpactHit;
+    public bool isRaycastImpactHit;
     public bool isRepairing;
-	public bool m_isInteracting;
+    public bool m_isInteracting;
     public bool canInteract = true, canShootLeft = true, canShootRight = true;
-	[HideInInspector] public float m_inputH;
-	[HideInInspector] public float m_inputV;
+    [HideInInspector] public float m_inputH;
+    [HideInInspector] public float m_inputV;
     [HideInInspector] public AgentController_Receiver m_receiver;
 
     private Impact m_impactSelected;
     private PlayerShipBehaviour m_ship;
     private CanonManager m_Canons;
-	private Animator m_animRepairText;
-	public Animator m_animPlayer;
+    private Animator m_animRepairText;
+    public Animator m_animPlayer;
     private healthManager m_shiphealth;
     private Transform m_camera;
 
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         m_ship = transform.GetComponentInParent<PlayerShipBehaviour>();
         m_Canons = m_ship.GetComponentInChildren<CanonManager>();
         m_shiphealth = m_ship.GetComponentInChildren<healthManager>();
         //
         m_camera = Camera.main.transform;
-		m_animRepairText = m_repairText.GetComponent<Animator>();
+        m_animRepairText = m_repairText.GetComponent<Animator>();
         m_repairSlider.value = 0;
         //
         m_receiver = GetComponent<AgentController_Receiver>();
         m_animPlayer = m_receiver.m_animator;
- 
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-	}
-	
-	// Update is called once per frame
-	void Update () 
-	{
-		CharInput();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        CharInput();
 
         //
-        if(m_animPlayer){
-			m_animPlayer.SetBool("canMove" , m_receiver.m_ControllerAgent.m_agentCanMove);
+        if (m_animPlayer)
+        {
+            m_animPlayer.SetBool("canMove", m_receiver.m_ControllerAgent.m_agentCanMove);
         }
         //Repair
         //if(m_shiphealth.m_totalNbImpact > 0)
-            RaycastImpact();
-	}
+        RaycastImpact();
+    }
 
-	private void CharInput(){
+    private void CharInput()
+    {
 
         //Quit / Pause
-        if(Input.GetButtonUp("X360_Start") || Input.GetKeyDown(KeyCode.Escape)){
+        if (Input.GetButtonUp("X360_back") || Input.GetKeyDown(KeyCode.Escape))
+        {
 #if UNITY_EDITOR
             Debug.Break();
 #else
-            Application.Quit();
+            //Application.Quit();
+		    SceneManager.LoadScene(0);
 #endif
         }
 
@@ -98,30 +105,37 @@ public class ActionsController : MonoBehaviour {
         m_inputV = Input.GetAxis("Vertical");
         if (Mathf.Abs(m_inputV) > 1)
             m_inputV = 1;
-        
+
         //INTERACT
-        if(Input.GetButtonDown("X360_A") && canInteract){
+        if (Input.GetButtonDown("X360_A") && canInteract)
+        {
             m_isInteracting = true;
         }
-        if(Input.GetButtonUp("X360_A") && canInteract){
+        if (Input.GetButtonUp("X360_A") && canInteract)
+        {
             m_isInteracting = false;
         }
 
         //SHOOT
-        if(Input.GetAxisRaw("X360_LTrigger") > 0 && canShootLeft){
+        if (Input.GetAxisRaw("X360_LTrigger") > 0 && canShootLeft)
+        {
             StartCoroutine("Shoot", true);
         }
-        if(Input.GetAxisRaw("X360_RTrigger") > 0 && canShootRight){
+        if (Input.GetAxisRaw("X360_RTrigger") > 0 && canShootRight)
+        {
             StartCoroutine("Shoot", false);
         }
 
         //REPAIR
-        if(Input.GetButtonDown("X360_Y") && isRaycastImpactHit){
+        if (Input.GetButtonDown("X360_Y") && isRaycastImpactHit)
+        {
             StopCoroutine("KeepRepairValue");
             StartCoroutine("Repair", m_impactSelected);
         }
-        if(isRepairing){
-            if(Input.GetButtonUp("X360_Y") || !isRaycastImpactHit){
+        if (isRepairing)
+        {
+            if (Input.GetButtonUp("X360_Y") || !isRaycastImpactHit)
+            {
                 StopCoroutine("Repair");
                 StartCoroutine("KeepRepairValue");
                 isRepairing = false;
@@ -131,34 +145,39 @@ public class ActionsController : MonoBehaviour {
         //STEER
         if (m_inputH < 0 && m_ship.m_rudderInteractZone.isZoneActive())  //left
         {
-			m_ship.SteerLeft();
+            m_ship.SteerLeft();
         }
         else if (m_inputH > 0 && m_ship.m_rudderInteractZone.isZoneActive()) //right
         {
-			m_ship.SteerRight();
+            m_ship.SteerRight();
         }
 
         //ANCHOR
-		if(m_isInteracting && m_ship.m_anchorZone.playerInZone){
-			m_ship.Anchor();
-		}
+        if (m_isInteracting && m_ship.m_anchorZone.playerInZone)
+        {
+            m_ship.Anchor();
+        }
 
         //SAILS
-		if(Input.GetButtonDown("X360_B")){	//droite
-            if(m_ship.m_sailsManager.OrderSailsUp()){                       //Order
-                    m_minions.SendUnitToMultiplePos(m_sailsPoints, m_minions.m_sailorsSailsTab, 1);      //Unit
-                    StartCoroutine(m_minions.SendActionDone(m_minions.m_sailorsSailsTab, 5));
+        if (Input.GetButtonDown("X360_B"))
+        {	//droite
+            if (m_ship.m_sailsManager.OrderSailsUp())
+            {                       //Order
+                m_minions.SendUnitToMultiplePos(m_sailsPoints, m_minions.m_sailorsSailsTab, 1);      //Unit
+                StartCoroutine(m_minions.SendActionDone(m_minions.m_sailorsSailsTab, 5));
             }
-		}
-		else if(Input.GetButtonDown("X360_X")){	//gauche
-            if(m_ship.m_sailsManager.OrderSailsDown()){                     //Order
-                    m_minions.SendUnitToMultiplePos(m_sailsPoints, m_minions.m_sailorsSailsTab, 1);      //Unit
-                    StartCoroutine(m_minions.SendActionDone(m_minions.m_sailorsSailsTab, 5));
+        }
+        else if (Input.GetButtonDown("X360_X"))
+        {	//gauche
+            if (m_ship.m_sailsManager.OrderSailsDown())
+            {                     //Order
+                m_minions.SendUnitToMultiplePos(m_sailsPoints, m_minions.m_sailorsSailsTab, 1);      //Unit
+                StartCoroutine(m_minions.SendActionDone(m_minions.m_sailorsSailsTab, 5));
             }
-		}
-	}
+        }
+    }
 
-	// private void Aim(){
+    // private void Aim(){
     //     m_Gun.LookAt(m_raycastManager.m_hitPoint);
     //     m_lineGun.SetPosition(0, m_shootPoint.position);
 
@@ -173,7 +192,8 @@ public class ActionsController : MonoBehaviour {
     //     }
     // }
 
-    private IEnumerator Shoot(bool isLeft){
+    private IEnumerator Shoot(bool isLeft)
+    {
         canShootLeft = !isLeft;
         canShootRight = isLeft;
 
@@ -182,15 +202,19 @@ public class ActionsController : MonoBehaviour {
         //bullet.name = "Bullet";
         //bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * m_bulletSpeed, ForceMode.Impulse);
 
-        if(isLeft){
-            if(m_Canons.ShootCanon(m_Canons.m_canonsLeft, m_minions.m_gunnersLeft)){        
+        if (isLeft)
+        {
+            if (m_Canons.ShootCanon(m_Canons.m_canonsLeft, m_minions.m_gunnersLeft))
+            {
                 PlayerShootAnim(isLeft);
             }
             m_Canons.ReloadCanon(m_Canons.m_canonsLeft);
             //yield return new WaitForSeconds(0.6f);
         }
-        else{
-            if(m_Canons.ShootCanon(m_Canons.m_canonsRight, m_minions.m_gunnersRight)){        
+        else
+        {
+            if (m_Canons.ShootCanon(m_Canons.m_canonsRight, m_minions.m_gunnersRight))
+            {
                 PlayerShootAnim(isLeft);
             }
             m_Canons.ReloadCanon(m_Canons.m_canonsRight);
@@ -207,11 +231,12 @@ public class ActionsController : MonoBehaviour {
         canShootRight = true;
     }
 
-    private void PlayerShootAnim(bool left){
+    private void PlayerShootAnim(bool left)
+    {
         m_receiver.m_ControllerAgent.m_agentCanMove = false;
         m_receiver.m_ControllerAgent.m_agent.velocity = Vector3.zero;
 
-        m_receiver.m_ControllerAgent.transform.localRotation = Quaternion.Euler(0,left? -90 : 90,0);
+        m_receiver.m_ControllerAgent.transform.localRotation = Quaternion.Euler(0, left ? -90 : 90, 0);
 
         //StartCoroutine(CameraShake.Shake(m_shootShakeDuration, m_shootShakeMagnitude));
         m_animPlayer.Play("Charge");
@@ -219,46 +244,50 @@ public class ActionsController : MonoBehaviour {
 
 
     private void RaycastImpact()
-	{
-		RaycastHit hitInfo;
+    {
+        RaycastHit hitInfo;
 
-		if(Physics.Raycast(m_camera.position + (m_camera.forward*1), m_camera.forward, out hitInfo, RaycastMaxDistance, m_raycastLayers, QueryTriggerInteraction.Collide)){
-			isRaycastImpactHit = true;
+        if (Physics.Raycast(m_camera.position + (m_camera.forward * 1), m_camera.forward, out hitInfo, RaycastMaxDistance, m_raycastLayers, QueryTriggerInteraction.Collide))
+        {
+            isRaycastImpactHit = true;
             //print(hitInfo.collider.name);
-			switch (hitInfo.collider.gameObject.layer)
-			{
-				case 19:
+            switch (hitInfo.collider.gameObject.layer)
+            {
+                case 19:
                     m_impactSelected = hitInfo.collider.gameObject.GetComponent<Impact>();
-					m_animRepairText.SetBool("InteractAnim",true);
-					m_repairText.transform.position = Camera.main.WorldToScreenPoint(hitInfo.point);
-				break;
-				default:
-					Debug.LogWarning("Raycast camera");
-				break;
-			}
-		}
-		else{
+                    m_animRepairText.SetBool("InteractAnim", true);
+                    m_repairText.transform.position = Camera.main.WorldToScreenPoint(hitInfo.point);
+                    break;
+                default:
+                    Debug.LogWarning("Raycast camera");
+                    break;
+            }
+        }
+        else
+        {
             m_impactSelected = null;
-			m_animRepairText.SetBool("InteractAnim",false);
-			isRaycastImpactHit = false;
-		}
-	}
+            m_animRepairText.SetBool("InteractAnim", false);
+            isRaycastImpactHit = false;
+        }
+    }
 
-    private IEnumerator Repair(Impact impact){
+    private IEnumerator Repair(Impact impact)
+    {
         isRepairing = true;
         m_minions.SendUnitToOnePos(m_impactSelected.transform.position, m_minions.m_sailorsRepairTab, 3);
 
         for (int i = (int)m_repairSlider.value; i < m_repairSlider.maxValue; i++)
         {
-            m_repairSlider.value ++;
-            yield return new WaitForSeconds(m_repairDuration/m_repairSlider.maxValue);
+            m_repairSlider.value++;
+            //m_camera.LookAt(impact.transform, Vector3.up);
+            yield return new WaitForSeconds(m_repairDuration / m_repairSlider.maxValue);
         }
-        
+
         //
         StartCoroutine(m_minions.SendActionDone(m_minions.m_sailorsRepairTab));
         //
-        m_shiphealth.IncreaseLife((int)((m_HealPercentage/100) * m_shiphealth.m_lifebar.MaxlifePoints));
-        m_shiphealth.m_totalNbImpact --;
+        m_shiphealth.IncreaseLife((int)((m_HealPercentage / 100) * m_shiphealth.m_lifebar.MaxlifePoints));
+        m_shiphealth.m_totalNbImpact--;
         //
         impact.DisableImpact(true);
         impact.m_parentZone.RemoveImpactUI();

@@ -19,10 +19,15 @@ public struct LifeElem
     public float MaxlifePoints;
 }
 
-public class healthManager : MonoBehaviour {
+public class healthManager : MonoBehaviour
+{
 
 
-	[Header("Impact zones")]
+    public float m_regenDelay = 1;
+    public int m_regenAmount = 1;
+    public bool canRegen;
+
+    [Header("Impact zones")]
     public bool m_useImpact = true;
     public int m_ImpactCooldown = 10;
 
@@ -35,22 +40,25 @@ public class healthManager : MonoBehaviour {
     // public Slider m_lifebar;
     // public float life = 100;
 
-	[Header("LifeBars")]
+    [Header("LifeBars")]
     public LifeElem m_lifebar;
     public Color Green;
     public Color Orange;
     public Color Red;
-    
-	public delegate void LifeReachZero(object sender);
-	public event LifeReachZero OnLifeReachZero;
-	public void CallOnLifeReachZero(){
-		if(OnLifeReachZero != null){
-			OnLifeReachZero(this);
-		}
-	}
 
-	void Start()
-	{
+    public delegate void LifeReachZero(object sender);
+    public event LifeReachZero OnLifeReachZero;
+    public void CallOnLifeReachZero()
+    {
+        if (OnLifeReachZero != null)
+        {
+            OnLifeReachZero(this);
+        }
+    }
+
+    private bool isRegen;
+    void Start()
+    {
         m_totalNbImpact = 0;
         //
         m_lifebar.bar.maxValue = m_lifebar.MaxlifePoints;
@@ -58,13 +66,15 @@ public class healthManager : MonoBehaviour {
         m_lifebar.bar.value = m_lifebar.bar.maxValue;
         m_lifebar.ColorBar.color = Green;
         //m_lifebars[i].lifePoints = m_lifebars[i].MaxlifePoints;
-	}
+    }
 
-    public void DecreaseLife(int damages){
+    public void DecreaseLife(int damages)
+    {
 
         m_lifebar.lifePoints -= damages;
 
-        if(m_lifebar.lifePoints <= 0){
+        if (m_lifebar.lifePoints <= 0)
+        {
             CallOnLifeReachZero();
             /*if(GetComponentInParent<EnnemyShipBehaviour>())
                 GetComponentInParent<EnnemyShipBehaviour>().Defeat();
@@ -76,51 +86,76 @@ public class healthManager : MonoBehaviour {
         refreshUIBar();
     }
 
-    public void IncreaseLife(int value){
+    public void IncreaseLife(int value)
+    {
         m_lifebar.lifePoints += value;
 
-        if(m_lifebar.lifePoints > m_lifebar.MaxlifePoints){
+        if (m_lifebar.lifePoints > m_lifebar.MaxlifePoints)
+        {
             m_lifebar.lifePoints = m_lifebar.MaxlifePoints;
         }
 
         refreshUIBar();
     }
 
-    private void refreshUIBar(){
+    private void refreshUIBar()
+    {
         m_lifebar.bar.value = m_lifebar.lifePoints;
 
-        if(m_lifebar.lifePoints <=  25f/100f * m_lifebar.MaxlifePoints){
+        if (m_lifebar.lifePoints <= 25f / 100f * m_lifebar.MaxlifePoints)
+        {
             //print("red");
             m_lifebar.ColorBar.color = Red;
         }
-        else if(m_lifebar.lifePoints <= 50f/100f * m_lifebar.MaxlifePoints){
+        else if (m_lifebar.lifePoints <= 50f / 100f * m_lifebar.MaxlifePoints)
+        {
             //print("orange");
             m_lifebar.ColorBar.color = Orange;
         }
-        else{
+        else
+        {
             //print("green");
             m_lifebar.ColorBar.color = Green;
         }
     }
-    
-    public void SpawnImpact(ImpactZone impactZone){
-        
-        if(Random.Range(0, 101) <= impactZone.m_impactPercentage){
+
+    public void SpawnImpact(ImpactZone impactZone)
+    {
+
+        if (Random.Range(0, 101) <= impactZone.m_impactPercentage)
+        {
             List<Impact> unactiveImpacts = new List<Impact>();
             foreach (Impact impact in impactZone.zone)
             {
-                if(!impact.isActive)
+                if (!impact.isActive)
                     unactiveImpacts.Add(impact.GetComponent<Impact>());
             }
 
             //print("impact count : " + unactiveImpacts.Count);
-            if(unactiveImpacts.Count > 0){
-                m_totalNbImpact ++;
-                if(unactiveImpacts[Random.Range(0, unactiveImpacts.Count)].ActiveImpact()){
+            if (unactiveImpacts.Count > 0)
+            {
+                m_totalNbImpact++;
+                if (unactiveImpacts[Random.Range(0, unactiveImpacts.Count)].ActiveImpact())
+                {
                     impactZone.AddImpactUI();
                 }
             }
         }
+    }
+
+    public void Regen()
+    {
+        if (!isRegen && m_totalNbImpact <= 0 && m_lifebar.lifePoints < m_lifebar.MaxlifePoints)
+        {
+            StartCoroutine("RegenCor");
+        }
+    }
+    public IEnumerator RegenCor()
+    {
+        isRegen = true;
+        yield return new WaitForSeconds(m_regenDelay);
+        IncreaseLife(m_regenAmount);
+        isRegen = false;
     }
 
 }
